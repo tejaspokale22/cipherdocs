@@ -1,10 +1,49 @@
+import express from "express";
 import dotenv from "dotenv";
-import app from "./app.js";
+import cors from "cors";
+import cookieParser from "cookie-parser";
+import connectDB from "./config/db.js";
 
 dotenv.config();
 
-const PORT = process.env.PORT || 5000;
+const app = express();
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+// Enable CORS for frontend communication
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    credentials: true,
+  }),
+);
+
+// Parse incoming JSON requests
+app.use(express.json());
+
+// Parse cookies for session handling
+app.use(cookieParser());
+
+// Health check endpoint
+app.get("/health-check", (_req, res) => {
+  res.status(200).json({
+    status: "OK",
+    service: "CipherDocs Backend",
+    timestamp: new Date().toISOString(),
+  });
 });
+
+// Home route
+app.get("/", (_req, res) => {
+  res.status(200).json({
+    message: "Welcome to CipherDocs API",
+  });
+});
+
+// Connect database and start server
+const startServer = async () => {
+  await connectDB();
+  app.listen(process.env.PORT, () => {
+    console.log(`Server running on port ${process.env.PORT}`);
+  });
+};
+
+startServer();
