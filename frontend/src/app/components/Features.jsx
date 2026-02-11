@@ -54,18 +54,23 @@ const features = [
 
 export default function Features() {
   return (
-    <section className="bg-white text-black">
-      <div className="mx-auto w-full max-w-[90vw] px-6 pb-20">
-        <h2 className="text-2xl font-semibold md:text-3xl">
-          What You Can Do with CipherDocs
-        </h2>
-        <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    <section className="bg-white pb-10">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="text-center">
+          <span className="inline-block rounded-full bg-green-500/10 px-4 py-1.5 text-sm font-medium text-green-600">
+            Features
+          </span>
+          <h2 className="mt-4 text-3xl font-bold tracking-tight text-black sm:text-4xl">
+            What You Can Do with CipherDocs
+          </h2>
+        </div>
+        <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {features.map((feature) => {
             const Icon = feature.icon;
             return (
               <div
                 key={feature.title}
-                className="flex min-h-45 flex-col justify-between rounded-lg bg-black/5 p-6 hover:bg-black/10"
+                className="flex min-h-45 flex-col justify-between rounded-xl bg-black/5 p-6 hover:bg-black/10"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="space-y-2">
@@ -76,7 +81,7 @@ export default function Features() {
                   </div>
                   <Icon className="h-9 w-9 text-black/70" />
                 </div>
-                <button className="mt-6 w-fit rounded-full bg-white px-4 py-2 text-sm font-medium text-black">
+                <button className="mt-6 w-fit rounded-full bg-white px-4 py-2 text-sm font-medium text-black shadow-sm hover:bg-black hover:text-white transition-colors">
                   {feature.action}
                 </button>
               </div>

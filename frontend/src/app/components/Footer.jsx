@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Github, Twitter, Mail } from "lucide-react";
+import Logo from "./Logo";
 
 export default function Footer() {
   return (
@@ -13,9 +14,9 @@ export default function Footer() {
               href="/"
               className="inline-block text-2xl font-normal tracking-wide"
             >
-              CipherDocs
+              <Logo size={180} variant="light" />
             </Link>
-            <p className="mt-4 text-sm text-white/70 leading-relaxed max-w-sm">
+            <p className="mt-2 text-sm text-white/70 leading-relaxed max-w-sm">
               A decentralized document issuance and verification platform
               powered by Polygon blockchain, designed to eliminate forgery and
               restore digital trust.

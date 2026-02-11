@@ -9,7 +9,8 @@ export default function Hero() {
         {/* Left Content */}
         <div className="flex-1 space-y-4 text-center lg:text-left">
           <h1 className="text-3xl font-semibold leading-[1.15] tracking-tight sm:text-4xl md:text-4xl lg:text-5xl">
-            Trust any document with CipherDocs.
+            Trust any document with cipherdocs
+            <span className="text-green-500">.</span>
           </h1>
 
           <p className="mx-auto max-w-md text-sm leading-relaxed text-black/60 sm:text-base lg:mx-0">
