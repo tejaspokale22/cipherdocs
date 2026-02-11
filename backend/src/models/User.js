@@ -10,21 +10,17 @@ const userSchema = new mongoose.Schema(
       trim: true,
     },
 
-    name: {
+    username: {
       type: String,
-      default: "",
+      unique: true,
+      sparse: true,
+      lowercase: true,
       trim: true,
     },
 
     role: {
       type: String,
       enum: ["user", "issuer"],
-      default: "user",
-    },
-
-    nonce: {
-      type: String,
-      required: true,
     },
   },
   { timestamps: true },

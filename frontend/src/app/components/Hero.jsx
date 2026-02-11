@@ -5,7 +5,7 @@ import heroImage from "../../../public/hero.png";
 export default function Hero() {
   return (
     <section className="bg-white text-black min-h-screen flex items-center pt-20 md:pt-16">
-      <div className="mx-auto flex w-full max-w-[90vw] flex-col items-center gap-10 px-4 sm:px-6 md:gap-12 lg:flex-row lg:items-center lg:gap-16 lg:px-8">
+      <div className="mx-auto flex w-full max-w-[90vw] flex-col items-center gap-6 px-4 sm:px-10 lg:flex-row lg:items-center lg:px-16">
         {/* Left Content */}
         <div className="flex-1 space-y-4 text-center lg:text-left">
           <h1 className="text-3xl font-semibold leading-[1.15] tracking-tight sm:text-4xl md:text-4xl lg:text-5xl">
@@ -71,8 +71,8 @@ export default function Hero() {
         </div>
 
         {/* Right Image */}
-        <div className="hidden md:flex md:flex-1 md:justify-center lg:flex-[1.5] lg:justify-end">
-          <div className="relative w-full max-w-md lg:max-w-none">
+        <div className="hidden lg:flex lg:flex-[1.5] lg:justify-end">
+          <div className="relative w-full">
             <Image
               src={heroImage}
               alt="Blockchain-based document verification"

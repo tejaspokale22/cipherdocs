@@ -6,21 +6,37 @@ export const protect = async (req, res, next) => {
     const token = req.cookies.token;
 
     if (!token) {
-      return res.status(401).json({ message: "Not authorized" });
+      return res.status(401).json({
+        message: "not authorized",
+      });
     }
 
+    // verify jwt
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    const user = await User.findById(decoded.userId).select("-nonce");
+    // fetch user from database
+    const user = await User.findById(decoded.userId).select(
+      "walletAddress username role",
+    );
 
     if (!user) {
-      return res.status(401).json({ message: "User not found" });
+      return res.status(401).json({
+        message: "user not found",
+      });
     }
 
-    req.user = user; // attach user to request
+    // attach user to request
+    req.user = {
+      id: user._id,
+      walletAddress: user.walletAddress,
+      username: user.username,
+      role: user.role,
+    };
 
     next();
   } catch (error) {
-    return res.status(401).json({ message: "Invalid or expired token" });
+    return res.status(401).json({
+      message: "invalid or expired token",
+    });
   }
 };

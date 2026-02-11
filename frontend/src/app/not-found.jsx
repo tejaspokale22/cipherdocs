@@ -1,17 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { FileX, Home, ArrowLeft } from "lucide-react";
+import { Home, ArrowLeft } from "lucide-react";
 
 export default function NotFound() {
   return (
     <section className="min-h-screen flex items-center justify-center bg-white">
       <div className="flex flex-col items-center text-center gap-6 px-6">
-        <div className="h-24 w-24 flex items-center justify-center rounded-full bg-black/5">
-          <FileX className="h-12 w-12 text-black/50" />
-        </div>
-
-        <h1 className="text-8xl font-semibold tracking-tight text-black/10">
+        <h1 className="text-8xl font-semibold tracking-tight text-black/15">
           404
         </h1>
 

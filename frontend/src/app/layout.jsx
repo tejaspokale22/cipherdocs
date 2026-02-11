@@ -1,6 +1,8 @@
 import { Poppins } from "next/font/google";
 import "@/app/globals.css";
-import Navbar from "@/app/components/Navbar";
+import { Toaster } from "react-hot-toast";
+import { AuthProvider } from "@/app/context/AuthContext";
+import AuthGate from "@/app/components/AuthGate";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -18,8 +20,15 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={`${poppins.className} antialiased`}>
-        <Navbar />
-        {children}
+        <AuthProvider>
+          <AuthGate>{children}</AuthGate>
+        </AuthProvider>
+        <Toaster
+          position="top-center"
+          toastOptions={{
+            duration: 1000,
+          }}
+        />
       </body>
     </html>
   );

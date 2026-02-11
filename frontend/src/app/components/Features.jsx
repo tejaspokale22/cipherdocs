@@ -4,6 +4,7 @@ import {
   Ban,
   ShieldCheck,
   ClipboardList,
+  Share2,
 } from "lucide-react";
 
 const features = [
@@ -42,12 +43,19 @@ const features = [
     action: "See audit trail",
     icon: ClipboardList,
   },
+  {
+    title: "Share Securely",
+    description:
+      "Share verified documents with anyone via secure, tamper-proof links.",
+    action: "Share document",
+    icon: Share2,
+  },
 ];
 
 export default function Features() {
   return (
     <section className="bg-white text-black">
-      <div className="mx-auto w-full max-w-7xl px-6 pb-10">
+      <div className="mx-auto w-full max-w-[90vw] px-6 pb-20">
         <h2 className="text-2xl font-semibold md:text-3xl">
           What You Can Do with CipherDocs
         </h2>
