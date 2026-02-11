@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import connectDB from "./config/db.js";
+import authRoutes from "./routes/authRoutes.js";
 
 dotenv.config();
 
@@ -37,6 +38,9 @@ app.get("/", (_req, res) => {
     message: "Welcome to CipherDocs API",
   });
 });
+
+// Authentication routes
+app.use("/api/auth", authRoutes);
 
 // Connect database and start server
 const startServer = async () => {
