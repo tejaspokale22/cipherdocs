@@ -54,13 +54,13 @@ const features = [
 
 export default function Features() {
   return (
-    <section className="bg-white pb-10">
+    <section className="bg-white pb-16 pt-8">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="text-center">
           <span className="inline-block rounded-full bg-green-500/10 px-4 py-1.5 text-sm font-medium text-green-600">
             Features
           </span>
-          <h2 className="mt-4 text-3xl font-bold tracking-tight text-black sm:text-4xl">
+          <h2 className="mt-8 text-3xl font-bold tracking-tight text-black sm:text-4xl">
             What You Can Do with CipherDocs
           </h2>
         </div>
@@ -79,7 +79,7 @@ export default function Features() {
                       {feature.description}
                     </p>
                   </div>
-                  <Icon className="h-9 w-9 text-black/70" />
+                  <Icon className="h-9 w-9 text-green-700" />
                 </div>
                 <button className="mt-6 w-fit rounded-full bg-white px-4 py-2 text-sm font-medium text-black shadow-sm hover:bg-black hover:text-white transition-colors">
                   {feature.action}

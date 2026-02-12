@@ -14,7 +14,7 @@ export default function Footer() {
               href="/"
               className="inline-block text-2xl font-normal tracking-wide"
             >
-              <Logo size={180} variant="light" />
+              <Logo size={180} variant="light" linkable={false} />
             </Link>
             <p className="mt-2 text-sm text-white/70 leading-relaxed max-w-sm">
               A decentralized document issuance and verification platform
@@ -27,7 +27,7 @@ export default function Footer() {
                 href="https://github.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-white/50 hover:text-white transition-colors"
+                className="text-white/50 hover:text-white transition-colors hover:underline"
                 aria-label="GitHub"
               >
                 <Github className="h-5 w-5" />
@@ -36,14 +36,14 @@ export default function Footer() {
                 href="https://twitter.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-white/50 hover:text-white transition-colors"
+                className="text-white/50 hover:text-white transition-colors hover:underline"
                 aria-label="Twitter"
               >
                 <Twitter className="h-5 w-5" />
               </Link>
               <Link
                 href="mailto:contact@cipherdocs.com"
-                className="text-white/50 hover:text-white transition-colors"
+                className="text-white/50 hover:text-white transition-colors hover:underline"
                 aria-label="Email"
               >
                 <Mail className="h-5 w-5" />
@@ -58,22 +58,34 @@ export default function Footer() {
             </p>
             <ul className="space-y-3 text-sm text-white/70">
               <li>
-                <Link className="hover:text-white transition-colors" href="#">
+                <Link
+                  className="hover:text-white transition-colors hover:underline"
+                  href="#"
+                >
                   Issue Documents
                 </Link>
               </li>
               <li>
-                <Link className="hover:text-white transition-colors" href="#">
+                <Link
+                  className="hover:text-white transition-colors hover:underline"
+                  href="#"
+                >
                   Verify Documents
                 </Link>
               </li>
               <li>
-                <Link className="hover:text-white transition-colors" href="#">
+                <Link
+                  className="hover:text-white transition-colors hover:underline"
+                  href="#"
+                >
                   My Certificates
                 </Link>
               </li>
               <li>
-                <Link className="hover:text-white transition-colors" href="#">
+                <Link
+                  className="hover:text-white transition-colors hover:underline"
+                  href="#"
+                >
                   Audit Trail
                 </Link>
               </li>
@@ -87,22 +99,34 @@ export default function Footer() {
             </p>
             <ul className="space-y-3 text-sm text-white/70">
               <li>
-                <Link className="hover:text-white transition-colors" href="#">
+                <Link
+                  className="hover:text-white transition-colors hover:underline"
+                  href="#"
+                >
                   Documentation
                 </Link>
               </li>
               <li>
-                <Link className="hover:text-white transition-colors" href="#">
+                <Link
+                  className="hover:text-white transition-colors hover:underline"
+                  href="#"
+                >
                   How It Works
                 </Link>
               </li>
               <li>
-                <Link className="hover:text-white transition-colors" href="#">
+                <Link
+                  className="hover:text-white transition-colors hover:underline"
+                  href="#"
+                >
                   Smart Contracts
                 </Link>
               </li>
               <li>
-                <Link className="hover:text-white transition-colors" href="#">
+                <Link
+                  className="hover:text-white transition-colors hover:underline"
+                  href="#"
+                >
                   API Reference
                 </Link>
               </li>
@@ -116,17 +140,26 @@ export default function Footer() {
             </p>
             <ul className="space-y-3 text-sm text-white/70">
               <li>
-                <Link className="hover:text-white transition-colors" href="#">
+                <Link
+                  className="hover:text-white transition-colors hover:underline"
+                  href="#"
+                >
                   Privacy Policy
                 </Link>
               </li>
               <li>
-                <Link className="hover:text-white transition-colors" href="#">
+                <Link
+                  className="hover:text-white transition-colors hover:underline"
+                  href="#"
+                >
                   Terms of Service
                 </Link>
               </li>
               <li>
-                <Link className="hover:text-white transition-colors" href="#">
+                <Link
+                  className="hover:text-white transition-colors hover:underline"
+                  href="#"
+                >
                   Contact Us
                 </Link>
               </li>

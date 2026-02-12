@@ -75,7 +75,7 @@ export default function UseCases() {
             return (
               <div
                 key={useCase.title}
-                className="group relative overflow-hidden rounded-2xl bg-white p-6 shadow-sm transition-all hover:shadow-lg hover:-translate-y-1"
+                className="group relative overflow-hidden rounded-2xl bg-white p-6 shadow-sm transition-all"
               >
                 <div
                   className={`inline-flex h-12 w-12 items-center justify-center rounded-xl ${useCase.color}`}

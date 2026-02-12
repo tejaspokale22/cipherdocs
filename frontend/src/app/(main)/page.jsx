@@ -3,7 +3,7 @@ import Features from "@/app/components/Features";
 import Stats from "@/app/components/Stats";
 import HowItWorks from "@/app/components/HowItWorks";
 import UseCases from "@/app/components/UseCases";
-import Testimonials from "@/app/components/Testimonials";
+// import Testimonials from "@/app/components/Testimonials";
 import CTA from "@/app/components/CTA";
 import Footer from "@/app/components/Footer";
 
@@ -15,7 +15,7 @@ export default function Home() {
       <Stats />
       <HowItWorks />
       <UseCases />
-      <Testimonials />
+      {/* <Testimonials /> */}
       <CTA />
       <Footer />
     </main>

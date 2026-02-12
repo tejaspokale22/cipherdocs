@@ -38,7 +38,7 @@ export async function verifyUser(payload) {
 // get current session
 export async function getSession() {
   try {
-    const res = await fetch("http://localhost:5000/api/auth/session", {
+    const res = await fetch(`${BASE_URL}/api/auth/session`, {
       method: "GET",
       credentials: "include", // important for cookies
     });
@@ -57,7 +57,7 @@ export async function getSession() {
 // logout
 export async function logout() {
   try {
-    await fetch("http://localhost:5000/api/auth/logout", {
+    await fetch(`${BASE_URL}/api/auth/logout`, {
       method: "POST",
       credentials: "include",
     });

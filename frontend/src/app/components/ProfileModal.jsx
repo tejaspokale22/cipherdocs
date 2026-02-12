@@ -30,7 +30,7 @@ export default function ProfileModal({ user, onClose }) {
     try {
       await navigator.clipboard.writeText(user?.walletAddress);
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      setTimeout(() => setCopied(false), 1600);
     } catch {
       toast.error("failed to copy");
     }

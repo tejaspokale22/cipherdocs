@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export default function CTA() {
   return (
-    <section className="bg-black py-20 sm:py-24">
+    <section className="bg-white py-20 sm:py-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="relative overflow-hidden rounded-3xl bg-linear-to-br from-green-500 to-green-600 p-8 sm:p-12 lg:p-16">
           {/* Background decoration */}

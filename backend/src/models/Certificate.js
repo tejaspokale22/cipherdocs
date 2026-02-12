@@ -13,25 +13,10 @@ const certificateSchema = new mongoose.Schema(
       trim: true,
     },
 
-    issueDate: {
-      type: Date,
-      default: Date.now,
-      required: true,
-    },
-
-    expiryDate: {
-      type: Date,
-    },
-
-    status: {
-      type: String,
-      enum: ["active", "revoked", "expired"],
-      default: "active",
-    },
-
     documentHash: {
       type: String,
       required: true,
+      index: true, // Fast verification lookup
     },
 
     ipfsCID: {
@@ -40,6 +25,18 @@ const certificateSchema = new mongoose.Schema(
       trim: true,
     },
 
+    // Envelope Encryption Fields
+    encryptedAESKey: {
+      type: String,
+      required: true,
+    },
+
+    encryptionIV: {
+      type: String,
+      required: true,
+    },
+
+    // References
     issuer: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -52,10 +49,37 @@ const certificateSchema = new mongoose.Schema(
       required: true,
     },
 
+    // Blockchain Metadata
     blockchainTxHash: {
       type: String,
       required: true,
       trim: true,
+      index: true,
+    },
+
+    contractCertificateId: {
+      type: Number,
+      required: true,
+    },
+
+    network: {
+      type: String,
+      default: "polygon-amoy",
+    },
+
+    issueDate: {
+      type: Date,
+      default: Date.now,
+    },
+
+    expiryDate: {
+      type: Date,
+    },
+
+    status: {
+      type: String,
+      enum: ["active", "revoked", "expired"],
+      default: "active",
     },
   },
   { timestamps: true },

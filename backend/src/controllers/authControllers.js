@@ -129,6 +129,7 @@ export const verify = async (req, res) => {
       message: "authentication successful",
       role: user.role,
       username: user.username,
+      walletAddress: user.walletAddress,
     });
   } catch (error) {
     console.error(error);
