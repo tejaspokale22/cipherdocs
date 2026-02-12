@@ -5,7 +5,7 @@ export default function CTA() {
   return (
     <section className="bg-white py-20 sm:py-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="relative overflow-hidden rounded-3xl bg-linear-to-br from-green-500 to-green-600 p-8 sm:p-12 lg:p-16">
+        <div className="relative overflow-hidden rounded-3xl bg-linear-to-br from-black to-black/90 p-8 sm:p-12 lg:p-16">
           {/* Background decoration */}
           <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
           <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-black/10 blur-3xl" />

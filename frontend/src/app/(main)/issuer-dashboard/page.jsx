@@ -1,5 +1,6 @@
 import { Briefcase, FileText, Plus, Users } from "lucide-react";
 import ProtectedRoute from "@/app/components/ProtectedRoute";
+import Link from "next/link";
 
 export default function IssuerDashboardPage() {
   return (
@@ -16,10 +17,13 @@ export default function IssuerDashboardPage() {
                 Manage and issue certificates to users
               </p>
             </div>
-            <button className="flex items-center gap-2 bg-black text-white px-4 py-2 rounded-lg hover:bg-black/80 transition-colors cursor-pointer">
+            <Link
+              href="/issue-certificate"
+              className="flex items-center gap-2 bg-black text-white px-4 py-2 rounded-lg hover:bg-black/80 transition-colors cursor-pointer"
+            >
               <Plus className="h-5 w-5" />
               Issue Certificate
-            </button>
+            </Link>
           </div>
 
           {/* Stats */}

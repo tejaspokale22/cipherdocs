@@ -4,6 +4,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import connectDB from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
+import certificateRoutes from "./routes/certificateRoutes.js";
 
 dotenv.config();
 
@@ -17,8 +18,9 @@ app.use(
   }),
 );
 
-// Parse incoming JSON requests
-app.use(express.json());
+// Parse incoming JSON requests (increased limit for file uploads)
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
 // Parse cookies for session handling
 app.use(cookieParser());
@@ -41,6 +43,9 @@ app.get("/", (_req, res) => {
 
 // Authentication routes
 app.use("/api/auth", authRoutes);
+
+// Certificate routes
+app.use("/api/certificates", certificateRoutes);
 
 // Connect database and start server
 const startServer = async () => {

@@ -27,7 +27,7 @@ export const protect = async (req, res, next) => {
 
     // attach user to request
     req.user = {
-      id: user._id,
+      _id: user._id,
       walletAddress: user.walletAddress,
       username: user.username,
       role: user.role,

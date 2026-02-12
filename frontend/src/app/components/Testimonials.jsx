@@ -51,7 +51,7 @@ export default function Testimonials() {
     <section className="bg-white py-20 sm:py-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="text-center">
-          <span className="inline-block rounded-full bg-green-500/10 px-4 py-1.5 text-sm font-medium text-green-600">
+          <span className="inline-block rounded-full bg-black/10 px-4 py-1.5 text-sm font-medium text-black">
             Testimonials
           </span>
           <h2 className="mt-4 text-3xl font-bold tracking-tight text-black sm:text-4xl">
@@ -70,7 +70,7 @@ export default function Testimonials() {
               </p>
 
               <div className="mt-8 flex items-center gap-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-500 text-lg font-semibold text-white">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-black text-lg font-semibold text-white">
                   {testimonials[currentIndex].avatar}
                 </div>
                 <div>
@@ -102,7 +102,7 @@ export default function Testimonials() {
                   onClick={() => setCurrentIndex(index)}
                   className={`h-2 rounded-full transition-all ${
                     index === currentIndex
-                      ? "w-8 bg-green-500"
+                      ? "w-8 bg-black"
                       : "w-2 bg-black/20 hover:bg-black/40"
                   }`}
                   aria-label={`Go to testimonial ${index + 1}`}

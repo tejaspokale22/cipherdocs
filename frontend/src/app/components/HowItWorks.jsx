@@ -36,7 +36,7 @@ export default function HowItWorks() {
     <section className="bg-white py-20 sm:py-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="text-center">
-          <span className="inline-block rounded-full bg-green-500/10 px-4 py-1.5 text-sm font-medium text-green-600">
+          <span className="inline-block rounded-full bg-black/10 px-4 py-1.5 text-sm font-medium text-black">
             Simple Process
           </span>
           <h2 className="mt-4 text-3xl font-bold tracking-tight text-black sm:text-4xl">
@@ -55,7 +55,7 @@ export default function HowItWorks() {
               <div key={item.step} className="relative">
                 {/* Connector line */}
                 {index < steps.length - 1 && (
-                  <div className="absolute left-1/2 top-12 hidden h-0.5 w-full bg-linear-to-r from-green-500/50 to-transparent lg:block" />
+                  <div className="absolute left-1/2 top-12 hidden h-0.5 w-full bg-linear-to-r from-black/50 to-transparent lg:block" />
                 )}
 
                 <div className="relative flex flex-col items-center text-center">
@@ -63,7 +63,7 @@ export default function HowItWorks() {
                     <div className="flex h-24 w-24 items-center justify-center rounded-2xl bg-black transition-transform hover:scale-105">
                       <Icon className="h-10 w-10 text-white" />
                     </div>
-                    <span className="absolute -right-2 -top-2 flex h-8 w-8 items-center justify-center rounded-full bg-green-500 text-sm font-bold text-white">
+                    <span className="absolute -right-2 -top-2 flex h-8 w-8 items-center justify-center rounded-full bg-black text-sm font-bold text-white">
                       {item.step}
                     </span>
                   </div>

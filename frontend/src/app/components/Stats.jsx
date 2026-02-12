@@ -39,8 +39,8 @@ export default function Stats() {
                 key={stat.label}
                 className="group relative overflow-hidden rounded-2xl bg-white/10 p-6 text-center backdrop-blur-sm transition-all hover:bg-white/15"
               >
-                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-green-500/10">
-                  <Icon className="h-6 w-6 text-green-500" />
+                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-white/20">
+                  <Icon className="h-6 w-6 text-white" />
                 </div>
                 <p className="text-3xl font-bold text-white sm:text-4xl">
                   {stat.value}

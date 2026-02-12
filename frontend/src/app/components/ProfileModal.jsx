@@ -1,9 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import toast from "react-hot-toast";
-import { LayoutDashboard, LogOut, Copy, Check } from "lucide-react";
+import { LogOut, Copy, Check } from "lucide-react";
 import { useState } from "react";
 import { logout } from "@/app/lib/authApi";
 import { useAuth } from "@/app/context/AuthContext";
@@ -12,7 +11,6 @@ export default function ProfileModal({ user, onClose }) {
   const router = useRouter();
   const { setUser } = useAuth();
   const [copied, setCopied] = useState(false);
-  const isIssuer = user?.role === "issuer";
 
   const handleSignOut = async () => {
     try {
@@ -44,12 +42,12 @@ export default function ProfileModal({ user, onClose }) {
           <div
             className={`h-10 w-10 rounded-full flex items-center justify-center text-base font-semibold bg-black text-white`}
           >
-            {isIssuer ? "I" : "U"}
+            {user?.role === "issuer" ? "I" : "U"}
           </div>
           <div>
             <p className="font-semibold text-black">{user?.username}</p>
             <span className="text-xs text-black/50">
-              {isIssuer ? "Issuer Account" : "User Account"}
+              {user?.role === "issuer" ? "Issuer Account" : "User Account"}
             </span>
           </div>
         </div>
@@ -83,15 +81,6 @@ export default function ProfileModal({ user, onClose }) {
 
       {/* Actions */}
       <div className="p-2">
-        <Link
-          href={isIssuer ? "/issuer-dashboard" : "/user-dashboard"}
-          onClick={onClose}
-          className="flex items-center gap-3 w-full py-2.5 px-3 text-sm text-black font-medium hover:bg-black/5 rounded-lg transition-colors"
-        >
-          <LayoutDashboard className="h-4 w-4 text-black/60" />
-          Dashboard
-        </Link>
-
         <button
           onClick={handleSignOut}
           className="flex items-center gap-3 w-full py-2.5 px-3 text-sm text-red-500 font-medium hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
