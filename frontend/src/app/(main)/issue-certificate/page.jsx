@@ -1,13 +1,16 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { FileText, Upload, Calendar, Wallet, X } from "lucide-react";
 import ProtectedRoute from "@/app/components/ProtectedRoute";
 import Spinner from "@/app/components/Spinner";
 import { getCipherDocsContract } from "@/app/lib/contract.js";
+import { ethers } from "ethers";
 
 export default function IssueCertificatePage() {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -28,7 +31,7 @@ export default function IssueCertificatePage() {
       setSelectedFile(file);
     } else {
       setSelectedFile(null);
-      alert("Please select a valid PDF file");
+      toast.error("please select a valid PDF file");
     }
   };
 
@@ -39,8 +42,10 @@ export default function IssueCertificatePage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (isLoading) return; // prevent double execution
+
     if (!selectedFile) {
-      toast.error("please upload a file");
+      toast.error("original certificate is required");
       return;
     }
 
@@ -52,10 +57,22 @@ export default function IssueCertificatePage() {
       // read file
       const fileArrayBuffer = await selectedFile.arrayBuffer();
 
-      // generate aes key (32 bytes = 256-bit)
+      // compute original hash before encryption
+      const originalHashBuffer = await crypto.subtle.digest(
+        "SHA-256",
+        fileArrayBuffer,
+      );
+
+      const originalDocumentHash = Array.from(
+        new Uint8Array(originalHashBuffer),
+      )
+        .map((b) => b.toString(16).padStart(2, "0"))
+        .join("");
+
+      // generate aes key
       const aesKey = crypto.getRandomValues(new Uint8Array(32));
 
-      // generate iv (12 bytes recommended for gcm)
+      // generate iv
       const iv = crypto.getRandomValues(new Uint8Array(12));
 
       // encrypt file using aes-gcm
@@ -73,14 +90,16 @@ export default function IssueCertificatePage() {
         fileArrayBuffer,
       );
 
-      // convert encrypted file to base64 (chunk-based to avoid stack overflow)
+      // convert encrypted file to base64
       const encryptedArray = new Uint8Array(encryptedBuffer);
       let binaryString = "";
       const chunkSize = 8192;
+
       for (let i = 0; i < encryptedArray.length; i += chunkSize) {
         const chunk = encryptedArray.subarray(i, i + chunkSize);
         binaryString += String.fromCharCode.apply(null, chunk);
       }
+
       const encryptedBase64 = btoa(binaryString);
 
       // convert aes key and iv to hex
@@ -92,9 +111,9 @@ export default function IssueCertificatePage() {
         .map((b) => b.toString(16).padStart(2, "0"))
         .join("");
 
-      toast.loading("issuing certificate...", { id: toastId });
+      toast.loading("wait a moment...", { id: toastId });
 
-      // call backend /prepare
+      // call backend prepare
       const prepareRes = await fetch(
         "http://localhost:5000/api/certificates/prepare",
         {
@@ -108,86 +127,81 @@ export default function IssueCertificatePage() {
             encryptedFileBase64: encryptedBase64,
             aesKeyHex,
             ivHex,
-            expiryDate: formData.expiryDate,
+            expiryDate: formData.expiryDate || null,
+            originalDocumentHash,
           }),
         },
       );
 
       const prepareData = await prepareRes.json();
 
+      // handle duplicate certificate (409)
+      if (prepareRes.status === 409) {
+        toast.dismiss(toastId);
+        toast.error(
+          "Active  certificate already exists. Revoke it before re-issuing.",
+        );
+        setIsLoading(false);
+        return;
+      }
+
+      // handle other errors
       if (!prepareRes.ok) {
-        throw new Error(prepareData.message || "Prepare failed");
+        toast.dismiss(toastId);
+        toast.error("prepare failed");
+        setIsLoading(false);
+        return;
       }
 
       const {
-        documentHash,
+        encryptedDocumentHash,
         ipfsCID,
         encryptedAESKey,
-        encryptionIV,
+        fileIV,
+        envelopeIV,
         recipientId,
       } = prepareData.data;
 
       toast.loading("waiting for metamask confirmation...", { id: toastId });
 
-      const AMOY_CHAIN_ID = "0x13882"; // polygon amoy chainid in hex
+      const AMOY_CHAIN_ID = "0x13882";
 
-      if (window.ethereum) {
-        const currentChainId = await window.ethereum.request({
-          method: "eth_chainId",
+      const currentChainId = await window.ethereum.request({
+        method: "eth_chainId",
+      });
+
+      if (currentChainId !== AMOY_CHAIN_ID) {
+        await window.ethereum.request({
+          method: "wallet_switchEthereumChain",
+          params: [{ chainId: AMOY_CHAIN_ID }],
         });
-
-        if (currentChainId !== AMOY_CHAIN_ID) {
-          try {
-            await window.ethereum.request({
-              method: "wallet_switchEthereumChain",
-              params: [{ chainId: AMOY_CHAIN_ID }],
-            });
-          } catch (switchError) {
-            // if network not added, add it
-            if (switchError.code === 4902) {
-              await window.ethereum.request({
-                method: "wallet_addEthereumChain",
-                params: [
-                  {
-                    chainId: AMOY_CHAIN_ID,
-                    chainName: "Polygon Amoy Testnet",
-                    nativeCurrency: {
-                      name: "POL",
-                      symbol: "POL",
-                      decimals: 18,
-                    },
-                    rpcUrls: ["https://rpc-amoy.polygon.technology"],
-                    blockExplorerUrls: ["https://amoy.polygonscan.com/"],
-                  },
-                ],
-              });
-            } else {
-              throw switchError;
-            }
-          }
-        }
       }
 
-      // get contract
       const contract = await getCipherDocsContract();
 
-      const expiryTimestamp = Math.floor(
-        new Date(formData.expiryDate).getTime() / 1000,
-      );
+      let expiryTimestamp = 0;
 
-      // prefix hash with 0x for bytes32
+      if (formData.expiryDate) {
+        expiryTimestamp = Math.floor(
+          new Date(formData.expiryDate).getTime() / 1000,
+        );
+      }
+
       const tx = await contract.issueCertificate(
-        "0x" + documentHash,
+        "0x" + encryptedDocumentHash,
         ipfsCID,
         formData.recipientAddress,
         expiryTimestamp,
+        {
+          maxPriorityFeePerGas: ethers.parseUnits("30", "gwei"),
+          maxFeePerGas: ethers.parseUnits("50", "gwei"),
+        },
       );
 
       toast.loading("confirming transaction...", { id: toastId });
 
       const receipt = await tx.wait();
 
-      // extract certificateid from event
       const event = receipt.logs
         .map((log) => {
           try {
@@ -199,14 +213,13 @@ export default function IssueCertificatePage() {
         .find((log) => log && log.name === "CertificateIssued");
 
       if (!event) {
-        throw new Error("CertificateIssued event not found");
+        throw new Error("certificateissued event not found");
       }
 
       const contractCertificateId = event.args.certificateId.toString();
 
-      toast.loading("finalizing issuance...", { id: toastId });
+      toast.loading("issuing certificate...", { id: toastId });
 
-      // call backend /issue (final db save)
       const issueRes = await fetch(
         "http://localhost:5000/api/certificates/issue",
         {
@@ -216,14 +229,16 @@ export default function IssueCertificatePage() {
           body: JSON.stringify({
             title: formData.title,
             description: formData.description,
-            documentHash,
+            originalDocumentHash,
+            encryptedDocumentHash,
             ipfsCID,
             encryptedAESKey,
-            encryptionIV,
+            fileIV,
+            envelopeIV,
             recipientId,
             blockchainTxHash: receipt.hash,
             contractCertificateId,
-            expiryDate: formData.expiryDate,
+            expiryDate: formData.expiryDate || null,
           }),
         },
       );
@@ -231,13 +246,15 @@ export default function IssueCertificatePage() {
       const issueData = await issueRes.json();
 
       if (!issueRes.ok) {
-        throw new Error(issueData.message || "Issue failed");
+        throw new Error(issueData.message || "issue failed");
       }
 
       toast.success("certificate issued successfully", { id: toastId });
+      // router.push("/issuer-dashboard");
     } catch (error) {
-      console.error(error);
-      toast.error("something went wrong", { id: toastId });
+      toast.error("something went wrong", {
+        id: toastId,
+      });
     } finally {
       setIsLoading(false);
     }
@@ -250,10 +267,10 @@ export default function IssueCertificatePage() {
           {/* Header */}
           <div className="mb-4">
             <h1 className="text-3xl font-semibold text-black">
-              Issue New Certificate
+              Issue new Certificate
             </h1>
             <p className="text-black/50 mt-1">
-              Create and issue a new blockchain-verified certificate
+              Create and issue a new blockchain-verified certificate.
             </p>
           </div>
 
@@ -264,7 +281,7 @@ export default function IssueCertificatePage() {
                 {/* Certificate Title */}
                 <div className="flex flex-col gap-2">
                   <label className="text-sm font-medium">
-                    Certificate Title
+                    Certificate Title<span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
                     <FileText className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-black/30" />
@@ -282,7 +299,9 @@ export default function IssueCertificatePage() {
 
                 {/* Description */}
                 <div className="flex flex-col gap-2">
-                  <label className="text-sm font-medium">Description</label>
+                  <label className="text-sm font-medium">
+                    Description<span className="text-red-500">*</span>
+                  </label>
                   <textarea
                     name="description"
                     placeholder="Enter certificate description"
@@ -298,6 +317,7 @@ export default function IssueCertificatePage() {
                 <div className="flex flex-col gap-2">
                   <label className="text-sm font-medium">
                     Recipient Wallet Address
+                    <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
                     <Wallet className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-black/30" />
@@ -316,6 +336,10 @@ export default function IssueCertificatePage() {
                 {/* Expiry Date */}
                 <div className="flex flex-col gap-2">
                   <label className="text-sm font-medium">Expiry Date</label>
+                  <span className="text-xs text-black/50 mb-1">
+                    Add expiry date only if the certificate has an expiry. Leave
+                    blank if it is lifetime.
+                  </span>
                   <div className="relative">
                     <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-black/30" />
                     <input
@@ -323,7 +347,6 @@ export default function IssueCertificatePage() {
                       name="expiryDate"
                       value={formData.expiryDate}
                       onChange={handleInputChange}
-                      required
                       className="w-full pl-12 pr-4 py-3 rounded-lg border border-black/10 bg-black/2 text-base placeholder:text-black/40 focus:outline-none focus:border-black/30 focus:ring-1 focus:ring-black transition-all"
                     />
                   </div>
@@ -333,6 +356,7 @@ export default function IssueCertificatePage() {
                 <div className="flex flex-col gap-2">
                   <label className="text-sm font-medium">
                     Orginal Certificate Document (PDF)
+                    <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
                     {!selectedFile ? (
@@ -346,7 +370,7 @@ export default function IssueCertificatePage() {
                             or drag and drop
                           </p>
                           <p className="text-xs text-black/40 mt-1">
-                            PDF only (max 10MB)
+                            PDF only (max 10mb)
                           </p>
                         </div>
                         <input
@@ -391,8 +415,7 @@ export default function IssueCertificatePage() {
                 >
                   {isLoading ? (
                     <>
-                      <Spinner size="sm" variant="light" />
-                      Issuing Certificate...
+                      <Spinner size="md" variant="light" />
                     </>
                   ) : (
                     "Issue Certificate"

@@ -35,7 +35,7 @@ export default function ProfileModal({ user, onClose }) {
   };
 
   return (
-    <div className="absolute right-0 top-full mt-2 w-72 rounded-xl bg-white border border-black/10 shadow-xl overflow-hidden z-50">
+    <div className="fixed right-8 md:absolute md:right-0 md:top-full mt-2 w-72 rounded-xl bg-white border border-black/10 z-50">
       {/* Header with user info */}
       <div className="px-4 pt-4 pb-3 border-b border-black/10">
         <div className="flex items-center gap-3">

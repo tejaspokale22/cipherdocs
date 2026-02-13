@@ -13,7 +13,7 @@ const app = express();
 // Enable CORS for frontend communication
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: ["http://localhost:3000", "https://cipherdocs.vercel.app"],
     credentials: true,
   }),
 );

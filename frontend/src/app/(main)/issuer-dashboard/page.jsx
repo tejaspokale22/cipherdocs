@@ -13,15 +13,15 @@ export default function IssuerDashboardPage() {
               <h1 className="text-3xl font-semibold text-black">
                 Issuer Dashboard
               </h1>
-              <p className="text-black/50 mt-1">
+              <p className="text-black/50 mt-2">
                 Manage and issue certificates to users
               </p>
             </div>
             <Link
               href="/issue-certificate"
-              className="flex items-center gap-2 bg-black text-white px-4 py-2 rounded-lg hover:bg-black/80 transition-colors cursor-pointer"
+              className="flex items-center gap-2 bg-black text-white rounded-lg hover:bg-black/80 transition-colors whitespace-nowrap px-3 py-2 text-xs sm:px-4 sm:py-2 sm:text-sm"
             >
-              <Plus className="h-5 w-5" />
+              <Plus className="h-4 w-4 sm:h-5 sm:w-5" />
               Issue Certificate
             </Link>
           </div>

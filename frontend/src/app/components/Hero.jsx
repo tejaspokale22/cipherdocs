@@ -5,15 +5,15 @@ import heroImage from "../../../public/hero.png";
 export default function Hero() {
   return (
     <section className="bg-white text-black min-h-screen flex items-center pt-16">
-      <div className="mx-auto flex w-full max-w-[90vw] flex-col items-center gap-6 px-4 sm:px-10 lg:flex-row lg:items-center lg:px-10">
+      <div className="mx-auto flex w-full max-w-[90vw] flex-col items-center gap-20 px-4 sm:px-10 lg:flex-row lg:items-center lg:px-12">
         {/* Left Content */}
         <div className="flex-1 space-y-4 text-left">
-          <h1 className="text-3xl font-semibold leading-[1.15] tracking-tight sm:text-4xl md:text-4xl lg:text-5xl">
+          <h1 className="text-3xl font-semibold leading-[1.15] tracking-tight sm:text-4xl md:text-4xl xl:text-5xl">
             Trust any document with cipherdocs
             <span className="text-green-500">.</span>
           </h1>
 
-          <p className="max-w-md text-sm leading-relaxed text-black/60 sm:text-base lg:mx-0">
+          <p className="max-w-md text-sm leading-relaxed text-black/60 md:text-base">
             Issue and verify critical and official documents with
             blockchain-backed authenticity, cryptographic hashing and QR-based
             verification.

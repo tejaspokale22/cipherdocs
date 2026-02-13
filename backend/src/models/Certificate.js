@@ -13,7 +13,13 @@ const certificateSchema = new mongoose.Schema(
       trim: true,
     },
 
-    documentHash: {
+    originalDocumentHash: {
+      type: String,
+      required: true,
+      index: true,
+    },
+
+    encryptedDocumentHash: {
       type: String,
       required: true,
       index: true, // Fast verification lookup
@@ -31,7 +37,12 @@ const certificateSchema = new mongoose.Schema(
       required: true,
     },
 
-    encryptionIV: {
+    fileIV: {
+      type: String,
+      required: true,
+    },
+
+    envelopeIV: {
       type: String,
       required: true,
     },

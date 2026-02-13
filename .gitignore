@@ -1,46 +1,77 @@
-# Node packages
+# ================================
+# Node dependencies
+# ================================
 node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-# Environment variables
+# ================================
+# Environment variables (never commit secrets)
+# ================================
 .env
 .env.*
 !.env.example
 
-# Next.js build
+# ================================
+# Next.js build output
+# ================================
 .next/
 out/
 build/
 .vercel/
 
+# ================================
 # Logs
+# ================================
 logs/
 *.log
 
-# OS and editor files
+# ================================
+# OS & editor files
+# ================================
 .DS_Store
 Thumbs.db
 .idea/
 .vscode/
 *.swp
 
+# ================================
 # Test coverage
+# ================================
 coverage/
 
-# MongoDB data
+# ================================
+# MongoDB local data
+# ================================
 data/
 *.mongodb
 
-# Blockchain / Hardhat
+# ================================
+# Hardhat / Blockchain artifacts
+# ================================
 artifacts/
 cache/
 typechain/
-.env.hardhat
+coverage/
+coverage.json
 
-# Temporary files
+# Hardhat local networks
+hardhat-network/
+
+# Ignition (if unused)
+ignition/deployments/
+
+# ================================
+# Build / temp folders
+# ================================
 dist/
 tmp/
 temp/
+
+# ================================
+# Optional: system files
+# ================================
+*.seed
+*.pid

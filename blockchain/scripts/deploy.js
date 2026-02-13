@@ -1,19 +1,37 @@
+const { ethers, network } = require("hardhat");
+
 async function main() {
-  console.log("🚀 Deploying CipherDocs...");
+  console.log("Starting deployment...");
+  console.log("Network:", network.name);
 
-  const Contract = await ethers.getContractFactory("CipherDocs");
+  // get deployer account
+  const [deployer] = await ethers.getSigners();
+  console.log("Deploying from:", deployer.address);
 
-  const contract = await Contract.deploy();
+  // get contract factory
+  const ContractFactory = await ethers.getContractFactory("CipherDocs");
 
-  console.log("⏳ Waiting for deployment confirmation...");
-  await contract.waitForDeployment(); // ✅ correct for ethers v6
+  // deploy contract
+  const contract = await ContractFactory.deploy();
 
-  const address = await contract.getAddress();
+  console.log("Transaction hash:", contract.deploymentTransaction().hash);
 
-  console.log("✅ Deployed to:", address);
+  // wait for deployment confirmation
+  await contract.waitForDeployment();
+
+  const contractAddress = await contract.getAddress();
+
+  console.log("Contract deployed at:", contractAddress);
+
+  // optional: log gas used
+  const receipt = await contract.deploymentTransaction().wait();
+  console.log("Gas used:", receipt.gasUsed.toString());
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exit(1);
-});
+main()
+  .then(() => process.exit(0))
+  .catch((error) => {
+    console.error("Deployment failed:");
+    console.error(error);
+    process.exit(1);
+  });
