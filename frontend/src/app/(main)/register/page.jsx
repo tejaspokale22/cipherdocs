@@ -11,24 +11,33 @@ import Spinner from "@/app/components/Spinner";
 export default function RegisterPage() {
   const router = useRouter();
   const [username, setUsername] = useState("");
+  const [name, setName] = useState("");
   const [role, setRole] = useState("user");
   const [loading, setLoading] = useState(false);
   const [tempAuth, setTempAuth] = useState(null);
 
   useEffect(() => {
     const storedAuth = sessionStorage.getItem("tempAuth");
+
     if (!storedAuth) {
       toast.error("wallet connection required");
       router.push("/");
       return;
     }
+
     setTempAuth(JSON.parse(storedAuth));
   }, [router]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!username.trim()) {
-      toast.error("username required");
+      toast.error("username is required");
+      return;
+    }
+
+    if (!name.trim()) {
+      toast.error("name is required");
       return;
     }
 
@@ -42,18 +51,23 @@ export default function RegisterPage() {
       setLoading(true);
       toast.loading("completing registration...", { id: "register" });
 
-      const data = await verifyUser({
+      await verifyUser({
         walletAddress: tempAuth.walletAddress,
         signature: tempAuth.signature,
         username,
+        name,
         role,
       });
 
       sessionStorage.removeItem("tempAuth");
-      toast.success("registration successful", { id: "register" });
+
+      toast.success("registration successful. now log in.", { id: "register" });
+
       router.push("/");
     } catch (error) {
-      toast.error(error.message, { id: "register" });
+      toast.error(error.message || "something went wrong", {
+        id: "register",
+      });
     } finally {
       setLoading(false);
     }
@@ -68,50 +82,42 @@ export default function RegisterPage() {
   }
 
   return (
-    <main className="min-h-screen bg-linear-to-b from-black/5 to-white flex items-center justify-center px-4 pt-24 pb-12 relative">
-      {/* back link */}
-      <Link
-        href="/"
-        className="absolute top-24 left-10 inline-flex items-center gap-2 text-base text-black/50 hover:text-black hover:underline"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        Back to home
-      </Link>
+    <main className="min-h-screen bg-linear-to-b from-black/5 to-white flex items-center justify-center px-4 pt-24 pb-10 relative">
       <div className="w-full max-w-lg">
-        {/* card */}
-        <div className="bg-white rounded-2xl border border-black/10 overflow-hidden">
-          {/* header */}
-          <div className="px-8 pt-8 ">
+        <div className="bg-white rounded-2xl border-2 border-black/10 overflow-hidden">
+          {/* Header */}
+          <div className="px-8 pt-6">
             <h1 className="text-2xl font-semibold">
               Complete your Registration
             </h1>
             <p className="text-sm text-black/50 mt-1">
-              One last step to get started with CipherDocs
+              One last step to get started with cipherdocs.
             </p>
           </div>
 
-          {/* content */}
-          <div className="p-8">
-            {/* wallet connected */}
-            <div className="flex items-center justify-between p-4 rounded-lg bg-black/5 border border-black mb-6">
+          <div className="p-7">
+            {/* Wallet Info */}
+            <div className="flex items-center justify-between p-4 rounded-lg bg-green-100 border-2 border-green-700 mb-6">
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="h-5 w-5 text-black/60" />
+                <CheckCircle2 className="h-6 w-6 text-green-700" />
                 <div>
-                  <p className="text-sm font-medium text-black/90">
+                  <p className="text-sm font-semibold text-black/90">
                     MetaMask Wallet Connected
                   </p>
-                  <p className="text-xs text-black/70">
-                    {tempAuth?.walletAddress}
+                  <p className="text-xs font-semibold text-black/70">
+                    {tempAuth.walletAddress}
                   </p>
                 </div>
               </div>
             </div>
 
-            {/* form */}
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* username */}
+            {/* Form */}
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Username */}
               <div className="flex flex-col gap-2">
-                <label className="text-sm font-medium">Username</label>
+                <label className="text-sm font-medium">
+                  Username<span className="text-red-500">*</span>
+                </label>
                 <div className="relative">
                   <User className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-black/30" />
                   <input
@@ -124,21 +130,44 @@ export default function RegisterPage() {
                 </div>
               </div>
 
-              {/* role */}
               <div className="flex flex-col gap-2">
-                <label className="text-sm font-medium">Role</label>
+                <label className="text-sm font-medium">
+                  Name<span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <User className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-black/30" />
+                  <input
+                    type="text"
+                    placeholder="Enter a name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="w-full pl-12 pr-4 py-2.5 rounded-lg border border-black/10 bg-black/2 text-base placeholder:text-black/40 focus:outline-none focus:border-black/30 focus:ring-1 focus:ring-black"
+                  />
+                </div>
+              </div>
+
+              {/* Role */}
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-medium">
+                  Role<span className="text-red-500">*</span>
+                </label>
                 <div className="grid grid-cols-2 gap-2">
+                  {/* User */}
                   <button
                     type="button"
                     onClick={() => setRole("user")}
-                    className={`relative flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-all cursor-pointer ${
+                    className={`flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition cursor-pointer ${
                       role === "user"
                         ? "border-black bg-black/5"
                         : "border-black/10 hover:border-black/20"
                     }`}
                   >
                     <div
-                      className={`h-12 w-12 rounded-full flex items-center justify-center ${role === "user" ? "bg-black text-white" : "bg-black/5 text-black/50"}`}
+                      className={`h-12 w-12 rounded-full flex items-center justify-center ${
+                        role === "user"
+                          ? "bg-black text-white"
+                          : "bg-black/5 text-black/50"
+                      }`}
                     >
                       <User className="h-6 w-6" />
                     </div>
@@ -147,17 +176,23 @@ export default function RegisterPage() {
                       Receive & verify certificates
                     </span>
                   </button>
+
+                  {/* Issuer */}
                   <button
                     type="button"
                     onClick={() => setRole("issuer")}
-                    className={`relative flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-all cursor-pointer ${
+                    className={`flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition cursor-pointer ${
                       role === "issuer"
                         ? "border-black bg-black/5"
                         : "border-black/10 hover:border-black/20"
                     }`}
                   >
                     <div
-                      className={`h-12 w-12 rounded-full flex items-center justify-center ${role === "issuer" ? "bg-black text-white" : "bg-black/5 text-black/50"}`}
+                      className={`h-12 w-12 rounded-full flex items-center justify-center ${
+                        role === "issuer"
+                          ? "bg-black text-white"
+                          : "bg-black/5 text-black/50"
+                      }`}
                     >
                       <Briefcase className="h-6 w-6" />
                     </div>
@@ -169,16 +204,14 @@ export default function RegisterPage() {
                 </div>
               </div>
 
-              {/* submit */}
+              {/* Submit */}
               <button
                 type="submit"
                 disabled={loading || !username.trim()}
-                className="w-full py-4 rounded-lg bg-black text-white font-medium hover:bg-black/80 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-2"
+                className="w-full py-4 rounded-lg bg-black text-white font-medium hover:bg-black/80 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer"
               >
                 {loading ? (
-                  <>
-                    <Spinner size="md" variant="light" />
-                  </>
+                  <Spinner size="md" variant="light" />
                 ) : (
                   "Create Profile"
                 )}

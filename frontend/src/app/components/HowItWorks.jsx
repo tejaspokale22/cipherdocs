@@ -33,14 +33,14 @@ const steps = [
 
 export default function HowItWorks() {
   return (
-    <section className="bg-white py-10 xs:py-14 sm:py-20 md:py-24">
+    <section className="bg-white py-14">
       <div className="mx-auto max-w-7xl px-3 xs:px-4 sm:px-6 lg:px-8">
         <div className="text-center">
           <span className="inline-block rounded-full bg-black/10 px-3 py-1 text-xs xs:px-4 xs:py-1.5 xs:text-sm font-medium text-black">
             Simple Process
           </span>
-          <h2 className="mt-3 xs:mt-4 text-2xl xs:text-3xl font-bold tracking-tight text-black sm:text-4xl">
-            How CipherDocs Works
+          <h2 className="mt-3 xs:mt-4 text-2xl xs:text-3xl font-semibold tracking-tight text-black sm:text-4xl">
+            How cipherdocs<span className="text-green-500">.</span> works?
           </h2>
           <p className="mx-auto mt-3 xs:mt-4 max-w-xl xs:max-w-2xl text-xs xs:text-base text-black/60 sm:text-lg">
             Four simple steps to issue and verify documents with

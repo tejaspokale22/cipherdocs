@@ -18,9 +18,20 @@ const userSchema = new mongoose.Schema(
       trim: true,
     },
 
+    name: {
+      type: String,
+      trim: true,
+    },
+
     role: {
       type: String,
       enum: ["user", "issuer"],
+    },
+
+    // Required for Web3 authentication
+    nonce: {
+      type: String,
+      select: false,
     },
   },
   { timestamps: true },

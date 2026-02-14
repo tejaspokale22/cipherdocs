@@ -16,7 +16,7 @@ export const protect = async (req, res, next) => {
 
     // fetch user from database
     const user = await User.findById(decoded.userId).select(
-      "walletAddress username role",
+      "walletAddress username name role",
     );
 
     if (!user) {
@@ -30,6 +30,7 @@ export const protect = async (req, res, next) => {
       _id: user._id,
       walletAddress: user.walletAddress,
       username: user.username,
+      name: user.name,
       role: user.role,
     };
 

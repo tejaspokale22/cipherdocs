@@ -3,10 +3,7 @@ import User from "../models/User.js";
 import { ethers } from "ethers";
 import jwt from "jsonwebtoken";
 
-// in-memory nonce store
-const nonceStore = new Map();
-
-// request nonce
+// Request Nonce
 export const requestNonce = async (req, res) => {
   try {
     const { walletAddress } = req.body;
@@ -16,21 +13,25 @@ export const requestNonce = async (req, res) => {
     }
 
     const normalizedAddress = walletAddress.toLowerCase();
-
-    // generate nonce
     const nonce = crypto.randomBytes(16).toString("hex");
 
-    // store nonce temporarily
-    nonceStore.set(normalizedAddress, nonce);
+    let user = await User.findOne({ walletAddress: normalizedAddress });
 
-    // check if user already exists
-    const existingUser = await User.findOne({
-      walletAddress: normalizedAddress,
-    });
+    if (!user) {
+      // Create minimal user with nonce
+      user = new User({
+        walletAddress: normalizedAddress,
+        nonce,
+      });
+    } else {
+      user.nonce = nonce;
+    }
+
+    await user.save();
 
     return res.json({
       nonce,
-      isNewUser: !existingUser,
+      isNewUser: !user.username, // better check
     });
   } catch (error) {
     console.error(error);
@@ -38,55 +39,50 @@ export const requestNonce = async (req, res) => {
   }
 };
 
-// verify signature and login
+// Verify Signature & Login
 export const verify = async (req, res) => {
   try {
-    const { walletAddress, signature, username, role } = req.body;
+    const { walletAddress, signature, username, name, role } = req.body;
 
     if (!walletAddress || !signature) {
-      return res
-        .status(400)
-        .json({ message: "wallet address and signature required" });
+      return res.status(400).json({
+        message: "Authentication failed. Please re-connect your wallet.",
+      });
     }
 
     const normalizedAddress = walletAddress.toLowerCase();
 
-    // get stored nonce
-    const storedNonce = nonceStore.get(normalizedAddress);
+    const user = await User.findOne({
+      walletAddress: normalizedAddress,
+    }).select("+nonce");
 
-    if (!storedNonce) {
-      return res.status(400).json({ message: "nonce expired or invalid" });
+    if (!user || !user.nonce) {
+      return res.status(400).json({
+        message: "Session expired. Please reconnect your wallet.",
+      });
     }
 
-    const message = `Login to CipherDocs: ${storedNonce}`;
-
-    // verify wallet signature
+    const message = `Login to CipherDocs: ${user.nonce}`;
     const recoveredAddress = ethers.verifyMessage(message, signature);
 
     if (recoveredAddress.toLowerCase() !== normalizedAddress) {
-      return res.status(401).json({ message: "invalid signature" });
+      return res.status(401).json({
+        message: "Authentication failed. Please try again.",
+      });
     }
 
-    // remove nonce after successful verification
-    nonceStore.delete(normalizedAddress);
+    // Rotate nonce immediately
+    user.nonce = undefined;
 
-    let user = await User.findOne({
-      walletAddress: normalizedAddress,
-    });
-
-    // new user creation only after valid signature
-    if (!user) {
-      if (!username || !role) {
+    // Complete registration if new user
+    if (!user.username) {
+      if (!username || !name || !role) {
         return res.status(400).json({
-          message: "username and role required for new user",
+          message: "Complete your profile to continue.",
         });
       }
 
       const cleanUsername = username.trim().toLowerCase();
-
-      if (!["user", "issuer"].includes(role)) {
-        return res.status(400).json({ message: "invalid role" });
-      }
 
       const existingUsername = await User.findOne({
         username: cleanUsername,
@@ -94,20 +90,36 @@ export const verify = async (req, res) => {
 
       if (existingUsername) {
         return res.status(400).json({
-          message: "username already taken",
+          message: "Username already taken.",
         });
       }
 
-      user = new User({
-        walletAddress: normalizedAddress,
-        username: cleanUsername,
-        role,
-      });
+      if (!["user", "issuer"].includes(role)) {
+        return res.status(400).json({
+          message: "Invalid role selected.",
+        });
+      }
 
-      await user.save();
+      if (role === "issuer") {
+        const approvedIssuers =
+          process.env.APPROVED_ISSUERS?.split(",").map((addr) =>
+            addr.trim().toLowerCase(),
+          ) || [];
+
+        if (!approvedIssuers.includes(normalizedAddress)) {
+          return res.status(403).json({
+            message: "This wallet is not authorized to register as an issuer.",
+          });
+        }
+      }
+
+      user.username = cleanUsername;
+      user.name = name.trim();
+      user.role = role;
     }
 
-    // generate jwt
+    await user.save();
+
     const token = jwt.sign(
       {
         userId: user._id,
@@ -117,18 +129,18 @@ export const verify = async (req, res) => {
       { expiresIn: "7d" },
     );
 
-    // set http only cookie
     res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
     return res.json({
-      message: "authentication successful",
+      message: "Authentication successful.",
       role: user.role,
       username: user.username,
+      name: user.name,
       walletAddress: user.walletAddress,
     });
   } catch (error) {
@@ -137,18 +149,18 @@ export const verify = async (req, res) => {
   }
 };
 
-// get current session
+// Get Current Session
 export const getCurrentSession = async (req, res) => {
   return res.json(req.user);
 };
 
-// logout user
-export const logout = async (req, res) => {
+// Logout
+export const logout = async (_req, res) => {
   res.cookie("token", "", {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    expires: new Date(0), // expire immediately
+    sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
+    expires: new Date(0),
   });
 
   return res.json({ message: "logged out successfully" });

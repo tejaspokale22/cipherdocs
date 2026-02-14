@@ -28,11 +28,13 @@ export async function verifyUser(payload) {
     body: JSON.stringify(payload),
   });
 
+  const data = await res.json();
+
   if (!res.ok) {
-    throw new Error("verification failed");
+    throw new Error(data.message || "verification failed");
   }
 
-  return res.json();
+  return data;
 }
 
 // get current session

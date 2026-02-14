@@ -54,14 +54,15 @@ const features = [
 
 export default function Features() {
   return (
-    <section className="bg-white pb-10 pt-6 sm:pb-16 sm:pt-8">
+    <section className="bg-white pb-10 pt-2 sm:pb-16">
       <div className="mx-auto max-w-7xl px-3 sm:px-6 lg:px-8">
         <div className="text-center">
           <span className="inline-block rounded-full bg-black/10 px-3 py-1 text-xs sm:px-4 sm:py-1.5 sm:text-sm font-medium text-black">
             Features
           </span>
-          <h2 className="mt-5 text-2xl font-bold tracking-tight text-black sm:mt-8 sm:text-3xl lg:text-4xl">
-            What You Can Do with CipherDocs
+          <h2 className="text-2xl font-semibold tracking-tight text-black sm:mt-8 sm:text-3xl lg:text-4xl">
+            What You Can Do with cipherdocs
+            <span className="text-green-500">.</span>
           </h2>
         </div>
         <div className="mt-8 grid gap-4 xs:grid-cols-1 sm:mt-12 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">

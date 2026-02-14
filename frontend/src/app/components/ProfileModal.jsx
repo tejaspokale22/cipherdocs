@@ -45,7 +45,7 @@ export default function ProfileModal({ user, onClose }) {
             {user?.role === "issuer" ? "I" : "U"}
           </div>
           <div>
-            <p className="font-semibold text-black">{user?.username}</p>
+            <p className="font-semibold text-black">{user?.name}</p>
             <span className="text-xs text-black/50">
               {user?.role === "issuer" ? "Issuer Account" : "User Account"}
             </span>
