@@ -8,6 +8,8 @@ import ProtectedRoute from "@/app/components/ProtectedRoute";
 import Spinner from "@/app/components/Spinner";
 import { getCipherDocsContract } from "@/app/lib/contract.js";
 import { ethers } from "ethers";
+import { mutate } from "swr";
+import { MY_CERTIFICATES, ISSUED_CERTIFICATES } from "@/app/lib/constants";
 
 export default function IssueCertificatePage() {
   const router = useRouter();
@@ -250,7 +252,9 @@ export default function IssueCertificatePage() {
       }
 
       toast.success("certificate issued successfully", { id: toastId });
-      // router.push("/issuer-dashboard");
+      await mutate(MY_CERTIFICATES);
+      await mutate(ISSUED_CERTIFICATES);
+      router.push("/issuer-dashboard");
     } catch (error) {
       toast.error("something went wrong", {
         id: toastId,

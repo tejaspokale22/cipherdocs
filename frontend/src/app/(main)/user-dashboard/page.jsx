@@ -1,41 +1,29 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { FileText, Download, CheckCircle, Clock } from "lucide-react";
+import Spinner from "@/app/components/Spinner";
 import ProtectedRoute from "@/app/components/ProtectedRoute";
 import toast from "react-hot-toast";
+import { MY_CERTIFICATES } from "@/app/lib/constants";
+import { fetcher } from "@/app/lib/fetcher";
+import useSWR from "swr";
 
 export default function UserDashboardPage() {
-  const [certificates, setCertificates] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const {
+    data: certificates = [], // default empty array
+    error,
+    isLoading,
+  } = useSWR(MY_CERTIFICATES, fetcher);
+
   const [downloadingId, setDownloadingId] = useState(null);
 
-  useEffect(() => {
-    const fetchCertificates = async () => {
-      try {
-        const res = await fetch(
-          "http://localhost:5000/api/certificates/my-certificates",
-          { credentials: "include" },
-        );
+  // Handle error properly
+  if (error) {
+    toast.error(error.message || "Failed to fetch certificates");
+  }
 
-        const data = await res.json();
-
-        if (res.ok) {
-          setCertificates(data.data || []);
-        } else {
-          toast.error(data.message || "Failed to fetch certificates");
-        }
-      } catch (error) {
-        toast.error("Something went wrong");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchCertificates();
-  }, []);
-
-  // 🔥 Download using base64 (already decrypted from backend)
+  // Download using base64 (already decrypted from backend)
   const handleDownload = (cert) => {
     try {
       setDownloadingId(cert._id);
@@ -118,9 +106,9 @@ export default function UserDashboardPage() {
               <h2 className="font-semibold">My Certificates</h2>
             </div>
 
-            {loading ? (
-              <div className="p-12 text-center text-black/50">
-                Loading certificates...
+            {isLoading ? (
+              <div className="flex flex-col items-center justify-center p-16">
+                <Spinner size="lg" />
               </div>
             ) : certificates.length === 0 ? (
               <div className="p-12 text-center">
@@ -136,7 +124,7 @@ export default function UserDashboardPage() {
                       <th className="px-6 py-3">Issuer</th>
                       <th className="px-6 py-3">Issued On</th>
                       <th className="px-6 py-3">Status</th>
-                      <th className="px-6 py-3 text-right">Action</th>
+                      <th className="px-6 py-3 text-center">Action</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -152,15 +140,14 @@ export default function UserDashboardPage() {
                         <td className="px-6 py-4">
                           <StatusBadge status={cert.status} />
                         </td>
-                        <td className="px-6 py-4 text-right">
+                        <td className="px-6 py-4 text-right flex justify-center">
                           <button
                             onClick={() => handleDownload(cert)}
                             disabled={downloadingId === cert._id}
-                            className="text-sm bg-black text-white px-4 py-2 rounded-md hover:bg-black/80 transition disabled:opacity-50"
+                            className="text-sm bg-black text-white px-4 py-2 rounded-md hover:bg-black/80 transition disabled:opacity-50 flex items-center gap-2 cursor-pointer"
                           >
-                            {downloadingId === cert._id
-                              ? "Downloading..."
-                              : "Download"}
+                            <Download className="h-4 w-4" />
+                            Download
                           </button>
                         </td>
                       </tr>

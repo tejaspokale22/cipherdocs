@@ -307,3 +307,30 @@ export const getMyCertificates = async (req, res) => {
     });
   }
 };
+
+export const getIssuedCertificates = async (req, res) => {
+  try {
+    const issuerId = req.user._id;
+
+    // Safety check
+    if (req.user.role !== "issuer") {
+      return res.status(403).json({
+        message: "Access denied. Only issuers can view issued certificates.",
+      });
+    }
+
+    const certificates = await Certificate.find({ issuer: issuerId })
+      .populate("recipient", "username walletAddress") // optional
+      .sort({ createdAt: -1 });
+
+    return res.status(200).json({
+      success: true,
+      data: certificates,
+    });
+  } catch (error) {
+    console.error("Get Issued Certificates Error:", error);
+    return res.status(500).json({
+      message: "Server error while fetching issued certificates",
+    });
+  }
+};
