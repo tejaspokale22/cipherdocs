@@ -11,9 +11,9 @@ const poppins = Poppins({
 });
 
 export const metadata = {
-  title: "CipherDocs",
+  title: "cipherdocs.",
   description:
-    "CipherDocs is a Polygon-based decentralized document issuance and verification platform that ensures authenticity, integrity, and tamper resistance by storing cryptographic hashes and metadata on the blockchain with off-chain decentralized storage.",
+    "cipherdocs is a Polygon-based decentralized document issuance and verification platform that ensures authenticity, integrity, and tamper resistance by storing cryptographic hashes and metadata on the blockchain with off-chain decentralized storage.",
 };
 
 export default function RootLayout({ children }) {
