@@ -14,8 +14,7 @@ import { MY_CERTIFICATES, ISSUED_CERTIFICATES } from "@/app/lib/constants";
 export default function IssueCertificatePage() {
   const router = useRouter();
   const [formData, setFormData] = useState({
-    title: "",
-    description: "",
+    name: "",
     recipientAddress: "",
     expiryDate: "",
   });
@@ -123,8 +122,7 @@ export default function IssueCertificatePage() {
           headers: { "Content-Type": "application/json" },
           credentials: "include",
           body: JSON.stringify({
-            title: formData.title,
-            description: formData.description,
+            name: formDatea.name,
             recipientWallet: formData.recipientAddress,
             encryptedFileBase64: encryptedBase64,
             aesKeyHex,
@@ -229,8 +227,7 @@ export default function IssueCertificatePage() {
           headers: { "Content-Type": "application/json" },
           credentials: "include",
           body: JSON.stringify({
-            title: formData.title,
-            description: formData.description,
+            name: formData.name,
             originalDocumentHash,
             encryptedDocumentHash,
             ipfsCID,
@@ -266,7 +263,7 @@ export default function IssueCertificatePage() {
 
   return (
     <ProtectedRoute requiredRole="issuer">
-      <main className="min-h-screen bg-linear-to-b from-black/5 to-white pb-12 px-4 pt-24">
+      <main className="min-h-screen bg-linear-to-b from-black/5 to-white pb-12 px-4 pt-23">
         <div className="max-w-3xl mx-auto">
           {/* Header */}
           <div className="mb-4">
@@ -285,36 +282,20 @@ export default function IssueCertificatePage() {
                 {/* Certificate Title */}
                 <div className="flex flex-col gap-2">
                   <label className="text-sm font-medium">
-                    Certificate Title<span className="text-red-500">*</span>
+                    Certificate Name<span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
                     <FileText className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-black/30" />
                     <input
                       type="text"
-                      name="title"
-                      placeholder="Enter certificate title"
-                      value={formData.title}
+                      name="name"
+                      placeholder="Enter certificate name"
+                      value={formData.name}
                       onChange={handleInputChange}
                       required
                       className="w-full pl-12 pr-4 py-3 rounded-lg border border-black/10 bg-black/2 text-base placeholder:text-black/40 focus:outline-none focus:border-black/30 focus:ring-1 focus:ring-black transition-all"
                     />
                   </div>
-                </div>
-
-                {/* Description */}
-                <div className="flex flex-col gap-2">
-                  <label className="text-sm font-medium">
-                    Description<span className="text-red-500">*</span>
-                  </label>
-                  <textarea
-                    name="description"
-                    placeholder="Enter certificate description"
-                    value={formData.description}
-                    onChange={handleInputChange}
-                    rows={4}
-                    required
-                    className="w-full px-4 py-3 rounded-lg border border-black/10 bg-black/2 text-base placeholder:text-black/40 focus:outline-none focus:border-black/30 focus:ring-1 focus:ring-black transition-all resize-none"
-                  />
                 </div>
 
                 {/* Recipient Wallet Address */}
