@@ -19,8 +19,7 @@ export const prepareCertificate = async (req, res) => {
     }
 
     const {
-      title,
-      description,
+      name,
       recipientWallet,
       encryptedFileBase64,
       aesKeyHex,
@@ -30,7 +29,7 @@ export const prepareCertificate = async (req, res) => {
     } = req.body;
 
     if (
-      !title ||
+      !name ||
       !recipientWallet ||
       !encryptedFileBase64 ||
       !aesKeyHex ||
@@ -112,8 +111,7 @@ export const prepareCertificate = async (req, res) => {
     return res.status(200).json({
       success: true,
       data: {
-        title,
-        description,
+        name,
         originalDocumentHash,
         encryptedDocumentHash,
         ipfsCID,
@@ -143,8 +141,7 @@ export const issueCertificate = async (req, res) => {
     }
 
     const {
-      title,
-      description,
+      name,
       originalDocumentHash,
       encryptedDocumentHash,
       ipfsCID,
@@ -158,6 +155,7 @@ export const issueCertificate = async (req, res) => {
     } = req.body;
 
     if (
+      !name ||
       !originalDocumentHash ||
       !encryptedDocumentHash ||
       !ipfsCID ||
@@ -226,8 +224,7 @@ export const issueCertificate = async (req, res) => {
     }
 
     const certificate = await Certificate.create({
-      title,
-      description,
+      name,
       originalDocumentHash,
       encryptedDocumentHash,
       ipfsCID,
@@ -285,8 +282,7 @@ export const getMyCertificates = async (req, res) => {
 
       result.push({
         _id: cert._id,
-        title: cert.title,
-        description: cert.description,
+        name: cert.name,
         issuer: cert.issuer,
         issueDate: cert.issueDate,
         status: cert.status,

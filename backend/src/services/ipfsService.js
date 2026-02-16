@@ -72,7 +72,7 @@ export const getCertificateFromIPFS = async (cid) => {
 
     const response = await axios.get(url, {
       responseType: "arraybuffer",
-      timeout: 30000,
+      timeout: 40000,
     });
 
     return Buffer.from(response.data);

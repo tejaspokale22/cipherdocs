@@ -16,11 +16,11 @@ export default function ProfileModal({ user, onClose }) {
     try {
       await logout();
       setUser(null);
-      toast.success("logged out");
+      toast.success("Logged out successfully");
       onClose?.();
       router.push("/");
     } catch (error) {
-      toast.error("failed to sign out");
+      toast.error("Failed to sign out");
     }
   };
 
@@ -29,8 +29,8 @@ export default function ProfileModal({ user, onClose }) {
       await navigator.clipboard.writeText(user?.walletAddress);
       setCopied(true);
       setTimeout(() => setCopied(false), 1600);
-    } catch {
-      toast.error("failed to copy");
+    } catch (error) {
+      toast.error("Failed to copy");
     }
   };
 

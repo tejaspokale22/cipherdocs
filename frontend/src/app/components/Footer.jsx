@@ -14,7 +14,7 @@ export default function Footer() {
               href="/"
               className="inline-block text-xl xs:text-2xl font-normal tracking-wide"
             >
-              <Logo size={130} variant="light" linkable={false} />
+              <Logo size={140} variant="light" linkable={false} />
             </Link>
             <p className="mt-2 text-xs xs:text-sm text-white/70 leading-relaxed max-w-xs xs:max-w-sm">
               A decentralized document issuance and verification platform

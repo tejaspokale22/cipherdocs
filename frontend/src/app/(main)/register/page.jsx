@@ -61,7 +61,9 @@ export default function RegisterPage() {
 
       sessionStorage.removeItem("tempAuth");
 
-      toast.success("registration successful. now log in.", { id: "register" });
+      toast.success("Registration is successful. Now you can log in.", {
+        id: "register",
+      });
 
       router.push("/");
     } catch (error) {

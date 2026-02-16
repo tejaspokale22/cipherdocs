@@ -1,6 +1,6 @@
 import Hero from "@/app/components/Hero";
 import Features from "@/app/components/Features";
-import Stats from "@/app/components/Stats";
+import Roles from "@/app/components/Roles";
 import HowItWorks from "@/app/components/HowItWorks";
 import UseCases from "@/app/components/UseCases";
 import CTA from "@/app/components/CTA";
@@ -11,7 +11,7 @@ export default function Home() {
     <main className="bg-white text-black">
       <Hero />
       <Features />
-      <Stats />
+      <Roles />
       <HowItWorks />
       <UseCases />
       <CTA />

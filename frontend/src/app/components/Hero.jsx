@@ -1,10 +1,18 @@
+"use client";
+
 import Image from "next/image";
 import { Shield, Database, QrCode } from "lucide-react";
 import heroImage from "../../../public/hero.png";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/app/context/AuthContext";
+import toast from "react-hot-toast";
 
 export default function Hero() {
+  const router = useRouter();
+  const { user } = useAuth();
+
   return (
-    <section className="bg-white text-black min-h-screen flex items-center pt-16">
+    <section className="bg-white text-black min-h-screen flex items-center md:pt-18 pt-10">
       <div className="mx-auto flex w-full max-w-[90vw] flex-col items-center gap-20 px-4 sm:px-10 lg:flex-row lg:items-center lg:px-12">
         {/* Left Content */}
         <div className="flex-1 space-y-4 text-left">
@@ -62,10 +70,19 @@ export default function Hero() {
           </div>
 
           <div className="flex flex-col gap-3 pt-4 sm:flex-row sm:flex-wrap justify-start">
-            <button className="cursor-pointer rounded-lg bg-black px-5 py-3 text-sm font-medium text-white hover:bg-black/80 sm:px-7 sm:py-4 sm:text-base">
+            <button
+              className="cursor-pointer rounded-lg bg-black px-5 py-3 text-sm font-medium text-white hover:bg-black/80 sm:px-7 sm:py-4 sm:text-base"
+              onClick={() => {
+                if (user) router.push("/issuer-dashboard");
+                else toast.error("Please connect your wallet to continue");
+              }}
+            >
               Issue Certificate
             </button>
-            <button className="cursor-pointer rounded-lg bg-black/10 px-5 py-3 text-sm font-medium text-black hover:bg-black/15 sm:px-7 sm:py-4 sm:text-base">
+            <button
+              className="cursor-pointer rounded-lg bg-black/10 px-5 py-3 text-sm font-medium text-black hover:bg-black/15 sm:px-7 sm:py-4 sm:text-base"
+              onClick={() => router.push("/verify")}
+            >
               Verify Certificate
             </button>
           </div>

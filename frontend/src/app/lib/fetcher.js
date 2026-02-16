@@ -1,13 +1,20 @@
 export const fetcher = async (url) => {
   const res = await fetch(url, {
-    credentials: "include", // REQUIRED for HTTP-only JWT
+    credentials: "include",
   });
 
-  const data = await res.json();
+  let json;
 
-  if (!res.ok) {
-    throw new Error(data.message || "Something went wrong");
+  try {
+    json = await res.json();
+  } catch {
+    throw new Error("Invalid server response");
   }
 
-  return data.data || [];
+  if (!res.ok) {
+    throw new Error(json?.message || "Request failed");
+  }
+
+  // return data field if present, otherwise return full json
+  return json?.data ?? json;
 };

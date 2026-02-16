@@ -10,6 +10,7 @@ import { getCipherDocsContract } from "@/app/lib/contract.js";
 import { ethers } from "ethers";
 import { mutate } from "swr";
 import { MY_CERTIFICATES, ISSUED_CERTIFICATES } from "@/app/lib/constants";
+import { ensureAmoyNetwork } from "@/app/lib/network";
 
 export default function IssueCertificatePage() {
   const router = useRouter();
@@ -76,7 +77,7 @@ export default function IssueCertificatePage() {
       // generate iv
       const iv = crypto.getRandomValues(new Uint8Array(12));
 
-      // encrypt file using aes-gcm
+      // import aes key
       const cryptoKey = await window.crypto.subtle.importKey(
         "raw",
         aesKey,
@@ -85,6 +86,7 @@ export default function IssueCertificatePage() {
         ["encrypt"],
       );
 
+      // encrypt file using aes-gcm
       const encryptedBuffer = await window.crypto.subtle.encrypt(
         { name: "AES-GCM", iv },
         cryptoKey,
@@ -122,7 +124,7 @@ export default function IssueCertificatePage() {
           headers: { "Content-Type": "application/json" },
           credentials: "include",
           body: JSON.stringify({
-            name: formDatea.name,
+            name: formData.name,
             recipientWallet: formData.recipientAddress,
             encryptedFileBase64: encryptedBase64,
             aesKeyHex,
@@ -135,17 +137,17 @@ export default function IssueCertificatePage() {
 
       const prepareData = await prepareRes.json();
 
-      // handle duplicate certificate (409)
+      // handle duplicate certificate
       if (prepareRes.status === 409) {
         toast.dismiss(toastId);
         toast.error(
-          "Active  certificate already exists. Revoke it before re-issuing.",
+          "Active certificate already exists. Revoke it before re-issuing.",
         );
         setIsLoading(false);
         return;
       }
 
-      // handle other errors
+      // handle other prepare errors
       if (!prepareRes.ok) {
         toast.dismiss(toastId);
         toast.error("prepare failed");
@@ -162,23 +164,26 @@ export default function IssueCertificatePage() {
         recipientId,
       } = prepareData.data;
 
-      toast.loading("waiting for metamask confirmation...", { id: toastId });
-
-      const AMOY_CHAIN_ID = "0x13882";
-
-      const currentChainId = await window.ethereum.request({
-        method: "eth_chainId",
+      toast.loading("waiting for metamask confirmation...", {
+        id: toastId,
       });
 
-      if (currentChainId !== AMOY_CHAIN_ID) {
-        await window.ethereum.request({
-          method: "wallet_switchEthereumChain",
-          params: [{ chainId: AMOY_CHAIN_ID }],
-        });
+      // ensure amoy network
+      try {
+        await ensureAmoyNetwork();
+      } catch (err) {
+        toast.dismiss(toastId);
+        toast.error("Please approve network switch in MetaMask");
+        setIsLoading(false);
+        return;
       }
 
+      // get contract instance
       const contract = await getCipherDocsContract();
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
 
+      // calculate expiry timestamp
       let expiryTimestamp = 0;
 
       if (formData.expiryDate) {
@@ -187,18 +192,29 @@ export default function IssueCertificatePage() {
         );
       }
 
+      // generate certificate id
       const certificateId = ethers.keccak256(
         ethers.toUtf8Bytes(
-          encryptedDocumentHash + formData.recipientAddress + Date.now(),
+          encryptedDocumentHash +
+            formData.recipientAddress +
+            Date.now().toString(),
         ),
       );
 
+      // ensure proper 0x format
+      const documentHash = encryptedDocumentHash.startsWith("0x")
+        ? encryptedDocumentHash
+        : "0x" + encryptedDocumentHash;
+
+      toast.loading("waiting for wallet confirmation...", { id: toastId });
+
+      // send transaction
       const tx = await contract.issueCertificate(
-        certificateId, // bytes32 _certificateId
-        "0x" + encryptedDocumentHash, // bytes32 _documentHash
-        ipfsCID, // string
-        formData.recipientAddress, // address
-        expiryTimestamp, // uint256
+        certificateId,
+        documentHash,
+        ipfsCID,
+        formData.recipientAddress,
+        expiryTimestamp,
         {
           maxPriorityFeePerGas: ethers.parseUnits("30", "gwei"),
           maxFeePerGas: ethers.parseUnits("50", "gwei"),
@@ -209,11 +225,12 @@ export default function IssueCertificatePage() {
 
       const receipt = await tx.wait();
 
+      // parse event
       const event = receipt.logs
         .map((log) => {
           try {
             return contract.interface.parseLog(log);
-          } catch {
+          } catch (err) {
             return null;
           }
         })
@@ -227,6 +244,7 @@ export default function IssueCertificatePage() {
 
       toast.loading("issuing certificate...", { id: toastId });
 
+      // call backend final issue
       const issueRes = await fetch(
         "http://localhost:5000/api/certificates/issue",
         {
@@ -255,14 +273,23 @@ export default function IssueCertificatePage() {
         throw new Error(issueData.message || "issue failed");
       }
 
+      // success
       toast.success("certificate issued successfully", { id: toastId });
+
       await mutate(MY_CERTIFICATES);
       await mutate(ISSUED_CERTIFICATES);
+
       router.push("/issuer-dashboard");
     } catch (error) {
-      toast.error("something went wrong", {
-        id: toastId,
-      });
+      console.error(error);
+
+      if (error.code === 4001) {
+        toast.error("Transaction rejected by user", { id: toastId });
+      } else if (error.message?.toLowerCase().includes("insufficient funds")) {
+        toast.error("Insufficient POL balance for gas", { id: toastId });
+      } else {
+        toast.error("something went wrong", { id: toastId });
+      }
     } finally {
       setIsLoading(false);
     }

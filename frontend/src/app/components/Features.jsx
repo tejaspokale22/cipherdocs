@@ -55,7 +55,7 @@ const features = [
 export default function Features() {
   return (
     <section className="bg-white pb-10 pt-2 sm:pb-16">
-      <div className="mx-auto max-w-7xl px-3 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-[85vw] px-3 sm:px-6 lg:px-8">
         <div className="text-center">
           <span className="inline-block rounded-full bg-black/10 px-3 py-1 text-xs sm:px-4 sm:py-1.5 sm:text-sm font-medium text-black">
             Features
@@ -84,7 +84,7 @@ export default function Features() {
                   </div>
                   <Icon className="h-7 w-7 sm:h-9 sm:w-9 text-black shrink-0" />
                 </div>
-                <button className="mt-4 sm:mt-6 w-fit rounded-full bg-white px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-black shadow-sm hover:bg-black hover:text-white transition-colors">
+                <button className="mt-4 sm:mt-6 w-fit rounded-full bg-black/10 px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-black">
                   {feature.action}
                 </button>
               </div>

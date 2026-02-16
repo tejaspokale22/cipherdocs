@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { FileText, Download, CheckCircle, Clock } from "lucide-react";
 import Spinner from "@/app/components/Spinner";
 import ProtectedRoute from "@/app/components/ProtectedRoute";
@@ -11,20 +11,35 @@ import useSWR from "swr";
 
 export default function UserDashboardPage() {
   const {
-    data: certificates = [], // default empty array
+    data: certificates = [],
     error,
     isLoading,
-  } = useSWR(MY_CERTIFICATES, fetcher);
+  } = useSWR(MY_CERTIFICATES, fetcher, {
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+    dedupingInterval: 60000,
+  });
 
   const [downloadingId, setDownloadingId] = useState(null);
 
-  // Handle error properly
-  if (error) {
-    toast.error(error.message || "Failed to fetch certificates");
-  }
+  // show error toast safely
+  useEffect(() => {
+    if (error) {
+      toast.error(error.message || "Failed to fetch certificates");
+    }
+  }, [error]);
 
-  // Download using base64 (already decrypted from backend)
-  const handleDownload = (cert) => {
+  // memoized stats
+  const { total, active, others } = useMemo(() => {
+    const total = certificates.length;
+    const active = certificates.filter((c) => c.status === "active").length;
+    const others = total - active;
+
+    return { total, active, others };
+  }, [certificates]);
+
+  // download certificate
+  const handleDownload = async (cert) => {
     try {
       setDownloadingId(cert._id);
 
@@ -33,15 +48,11 @@ export default function UserDashboardPage() {
         return;
       }
 
-      // Convert base64 to binary
       const byteCharacters = atob(cert.fileBase64);
-      const byteNumbers = new Array(byteCharacters.length)
-        .fill(0)
-        .map((_, i) => byteCharacters.charCodeAt(i));
+      const byteArray = Uint8Array.from(byteCharacters, (char) =>
+        char.charCodeAt(0),
+      );
 
-      const byteArray = new Uint8Array(byteNumbers);
-
-      // Create PDF Blob
       const blob = new Blob([byteArray], {
         type: "application/pdf",
       });
@@ -50,28 +61,23 @@ export default function UserDashboardPage() {
 
       const a = document.createElement("a");
       a.href = url;
-      a.download = `${cert.title || "certificate"}.pdf`;
+      a.download = `${cert.name || "certificate"}.pdf`;
       document.body.appendChild(a);
       a.click();
       a.remove();
 
       window.URL.revokeObjectURL(url);
-    } catch (error) {
+    } catch (err) {
       toast.error("Download failed");
     } finally {
       setDownloadingId(null);
     }
   };
 
-  const total = certificates.length;
-  const active = certificates.filter((c) => c.status === "active").length;
-  const others = certificates.filter((c) => c.status !== "active").length;
-
   return (
     <ProtectedRoute requiredRole="user">
       <main className="min-h-screen bg-white pt-24 pb-12 px-6 md:px-20 lg:px-36">
         <div className="max-w-6xl mx-auto">
-          {/* Header */}
           <div className="mb-8">
             <h1 className="text-3xl font-semibold text-black">
               My Certificates
@@ -81,7 +87,6 @@ export default function UserDashboardPage() {
             </p>
           </div>
 
-          {/* Stats */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <StatCard
               icon={<FileText className="h-5 w-5 text-black/50" />}
@@ -100,14 +105,13 @@ export default function UserDashboardPage() {
             />
           </div>
 
-          {/* Table */}
           <div className="bg-white rounded-xl border border-black/10 overflow-hidden">
             <div className="px-6 py-4 border-b border-black/10">
               <h2 className="font-semibold">My Certificates</h2>
             </div>
 
             {isLoading ? (
-              <div className="flex flex-col items-center justify-center p-16">
+              <div className="flex items-center justify-center p-16">
                 <Spinner size="lg" />
               </div>
             ) : certificates.length === 0 ? (
@@ -120,7 +124,7 @@ export default function UserDashboardPage() {
                 <table className="w-full text-left text-sm">
                   <thead className="bg-black/5">
                     <tr>
-                      <th className="px-6 py-3">Title</th>
+                      <th className="px-6 py-3">Name</th>
                       <th className="px-6 py-3">Issuer</th>
                       <th className="px-6 py-3">Issued On</th>
                       <th className="px-6 py-3">Status</th>
@@ -130,7 +134,7 @@ export default function UserDashboardPage() {
                   <tbody>
                     {certificates.map((cert) => (
                       <tr key={cert._id} className="border-t border-black/10">
-                        <td className="px-6 py-4 font-medium">{cert.title}</td>
+                        <td className="px-6 py-4 font-medium">{cert.name}</td>
                         <td className="px-6 py-4">
                           {cert.issuer?.username || "Unknown"}
                         </td>
@@ -140,14 +144,16 @@ export default function UserDashboardPage() {
                         <td className="px-6 py-4">
                           <StatusBadge status={cert.status} />
                         </td>
-                        <td className="px-6 py-4 text-right flex justify-center">
+                        <td className="px-6 py-4 text-center">
                           <button
                             onClick={() => handleDownload(cert)}
                             disabled={downloadingId === cert._id}
-                            className="text-sm bg-black text-white px-4 py-2 rounded-md hover:bg-black/80 transition disabled:opacity-50 flex items-center gap-2 cursor-pointer"
+                            className="text-sm bg-black text-white px-4 py-2 rounded-md hover:bg-black/80 transition disabled:opacity-50 flex items-center gap-2"
                           >
                             <Download className="h-4 w-4" />
-                            Download
+                            {downloadingId === cert._id
+                              ? "Downloading..."
+                              : "Download"}
                           </button>
                         </td>
                       </tr>
@@ -178,13 +184,15 @@ function StatCard({ icon, label, value }) {
 function StatusBadge({ status }) {
   const base = "px-3 py-1 rounded-full text-xs font-medium";
 
-  if (status === "active")
+  if (status === "active") {
     return (
       <span className={`${base} bg-green-100 text-green-700`}>Active</span>
     );
+  }
 
-  if (status === "revoked")
+  if (status === "revoked") {
     return <span className={`${base} bg-red-100 text-red-700`}>Revoked</span>;
+  }
 
   return (
     <span className={`${base} bg-yellow-100 text-yellow-700`}>Expired</span>

@@ -63,7 +63,7 @@ export default function ConnectWalletButton() {
       });
 
       setUser(data); // update global auth state
-      toast.success("logged in successfully", { id: "wallet" });
+      toast.success("Logged in successfully", { id: "wallet" });
 
       // redirect based on role
       if (data.role === "issuer") {
