@@ -13,19 +13,18 @@ contract CipherDocs {
         bool revoked;
     }
 
-    uint256 public certificateCounter;
-
-    mapping(uint256 => Certificate) public certificates;
+    mapping(bytes32 => Certificate) public certificates;
 
     event CertificateIssued(
-        uint256 indexed certificateId,
+        bytes32 indexed certificateId,
         address indexed user,
         address indexed issuer
     );
 
-    event CertificateRevoked(uint256 indexed certificateId);
+    event CertificateRevoked(bytes32 indexed certificateId);
 
     function issueCertificate(
+        bytes32 _certificateId,
         bytes32 _documentHash,
         string memory _ipfsCID,
         address _user,
@@ -33,10 +32,9 @@ contract CipherDocs {
     ) public {
 
         require(_user != address(0), "Invalid user address");
+        require(certificates[_certificateId].issuer == address(0), "Certificate already exists");
 
-        certificateCounter++;
-
-        certificates[certificateCounter] = Certificate({
+        certificates[_certificateId] = Certificate({
             documentHash: _documentHash,
             ipfsCID: _ipfsCID,
             user: _user,
@@ -46,10 +44,10 @@ contract CipherDocs {
             revoked: false
         });
 
-        emit CertificateIssued(certificateCounter, _user, msg.sender);
+        emit CertificateIssued(_certificateId, _user, msg.sender);
     }
 
-    function revokeCertificate(uint256 _certificateId) public {
+    function revokeCertificate(bytes32 _certificateId) public {
 
         Certificate storage cert = certificates[_certificateId];
 
@@ -61,7 +59,7 @@ contract CipherDocs {
         emit CertificateRevoked(_certificateId);
     }
 
-    function getCertificate(uint256 _certificateId)
+    function getCertificate(bytes32 _certificateId)
         public
         view
         returns (Certificate memory)

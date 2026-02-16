@@ -1,8 +1,9 @@
 import { Poppins } from "next/font/google";
 import "@/app/globals.css";
-import { Toaster } from "react-hot-toast";
 import { AuthProvider } from "@/app/context/AuthContext";
 import AuthGate from "@/app/components/AuthGate";
+import { Toaster } from "react-hot-toast";
+// import NextTopLoader from "nextjs-toploader";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -23,12 +24,20 @@ export default function RootLayout({ children }) {
         <AuthProvider>
           <AuthGate>{children}</AuthGate>
         </AuthProvider>
+
         <Toaster
           position="top-center"
           toastOptions={{
             duration: 1600,
           }}
         />
+        {/* <NextTopLoader
+          color="#ffffff"
+          height={1}
+          crawl
+          showSpinner={false}
+          speed={300}
+        /> */}
       </body>
     </html>
   );

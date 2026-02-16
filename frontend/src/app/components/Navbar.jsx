@@ -37,7 +37,7 @@ export default function Navbar() {
       <nav className="mx-auto flex h-16 items-center justify-between px-3 sm:px-4 md:px-8 lg:px-20 xl:px-36 max-w-full">
         <Logo size={isTablet ? 130 : 170} variant="light" />
         {/* Desktop nav */}
-        <div className="hidden md:flex items-center gap-1">
+        <div className="hidden md:flex items-center gap-2">
           {navLinks
             .filter((l) => l.show)
             .map(({ href, label, icon: Icon }) => (
