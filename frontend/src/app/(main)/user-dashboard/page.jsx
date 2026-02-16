@@ -1,13 +1,15 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { FileText, Download, CheckCircle, Clock } from "lucide-react";
+import { FileText, Download, CheckCircle, Clock, QrCode } from "lucide-react";
 import Spinner from "@/app/components/Spinner";
 import ProtectedRoute from "@/app/components/ProtectedRoute";
 import toast from "react-hot-toast";
 import { MY_CERTIFICATES } from "@/app/lib/constants";
 import { fetcher } from "@/app/lib/fetcher";
 import useSWR from "swr";
+import QRCode from "qrcode";
+import QrModal from "@/app/components/QrModal";
 
 export default function UserDashboardPage() {
   const {
@@ -19,8 +21,9 @@ export default function UserDashboardPage() {
     revalidateOnReconnect: false,
     dedupingInterval: 60000,
   });
-
   const [downloadingId, setDownloadingId] = useState(null);
+  const [qrMap, setQrMap] = useState({});
+  const [qrModal, setQrModal] = useState({ open: false, src: null });
 
   // show error toast safely
   useEffect(() => {
@@ -71,6 +74,21 @@ export default function UserDashboardPage() {
       toast.error("Download failed");
     } finally {
       setDownloadingId(null);
+    }
+  };
+
+  // generate QR code
+  const generateQR = async (cert) => {
+    try {
+      const verifyUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/verify/${cert.contractCertificateId}`;
+      const qrImage = await QRCode.toDataURL(verifyUrl);
+      setQrMap((prev) => ({
+        ...prev,
+        [cert._id]: qrImage,
+      }));
+      setQrModal({ open: true, src: qrImage });
+    } catch (err) {
+      toast.error("Failed to generate QR. Please try again.");
     }
   };
 
@@ -144,11 +162,18 @@ export default function UserDashboardPage() {
                         <td className="px-6 py-4">
                           <StatusBadge status={cert.status} />
                         </td>
-                        <td className="px-6 py-4 text-center">
+                        <td className="px-6 py-4 text-center flex items-center justify-center gap-2">
+                          <button
+                            onClick={() => generateQR(cert)}
+                            className="text-sm bg-black text-white px-4 py-2 rounded-md hover:bg-black/80 transition disabled:opacity-50 flex items-center gap-2 cursor-pointer"
+                          >
+                            <QrCode className="h-4 w-4" />
+                            Show QR
+                          </button>
                           <button
                             onClick={() => handleDownload(cert)}
                             disabled={downloadingId === cert._id}
-                            className="text-sm bg-black text-white px-4 py-2 rounded-md hover:bg-black/80 transition disabled:opacity-50 flex items-center gap-2"
+                            className="text-sm bg-black text-white px-4 py-2 rounded-md hover:bg-black/80 transition disabled:opacity-50 flex items-center gap-2 cursor-pointer"
                           >
                             <Download className="h-4 w-4" />
                             {downloadingId === cert._id
@@ -165,6 +190,11 @@ export default function UserDashboardPage() {
           </div>
         </div>
       </main>
+      <QrModal
+        open={qrModal.open}
+        onClose={() => setQrModal({ open: false, src: null })}
+        qrSrc={qrModal.src}
+      />
     </ProtectedRoute>
   );
 }

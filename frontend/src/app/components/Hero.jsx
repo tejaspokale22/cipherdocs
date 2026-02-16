@@ -73,8 +73,13 @@ export default function Hero() {
             <button
               className="cursor-pointer rounded-lg bg-black px-5 py-3 text-sm font-medium text-white hover:bg-black/80 sm:px-7 sm:py-4 sm:text-base"
               onClick={() => {
-                if (user) router.push("/issuer-dashboard");
-                else toast.error("Please connect your wallet to continue");
+                if (user) {
+                  if (user.role === "issuer") {
+                    router.push("/issuer-dashboard");
+                  } else {
+                    toast.error("Only issuers can issue certificates.");
+                  }
+                } else toast.error("Please connect your wallet to continue.");
               }}
             >
               Issue Certificate

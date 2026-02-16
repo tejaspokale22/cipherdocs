@@ -287,6 +287,7 @@ export const getMyCertificates = async (req, res) => {
         issueDate: cert.issueDate,
         status: cert.status,
         fileBase64: decryptedBuffer.toString("base64"),
+        contractCertificateId: cert.contractCertificateId,
       });
     }
 
