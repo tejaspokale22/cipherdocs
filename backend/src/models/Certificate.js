@@ -11,13 +11,11 @@ const certificateSchema = new mongoose.Schema(
     originalDocumentHash: {
       type: String,
       required: true,
-      index: true,
     },
 
     encryptedDocumentHash: {
       type: String,
       required: true,
-      index: true, // Fast verification lookup
     },
 
     ipfsCID: {
@@ -60,11 +58,10 @@ const certificateSchema = new mongoose.Schema(
       type: String,
       required: true,
       trim: true,
-      index: true,
     },
 
     contractCertificateId: {
-      type: Number,
+      type: String,
       required: true,
     },
 
@@ -84,7 +81,7 @@ const certificateSchema = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: ["active", "revoked", "expired"],
+      enum: ["active", "revoked", "expired", "forged"],
       default: "active",
     },
   },

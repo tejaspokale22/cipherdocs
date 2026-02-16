@@ -187,11 +187,18 @@ export default function IssueCertificatePage() {
         );
       }
 
+      const certificateId = ethers.keccak256(
+        ethers.toUtf8Bytes(
+          encryptedDocumentHash + formData.recipientAddress + Date.now(),
+        ),
+      );
+
       const tx = await contract.issueCertificate(
-        "0x" + encryptedDocumentHash,
-        ipfsCID,
-        formData.recipientAddress,
-        expiryTimestamp,
+        certificateId, // bytes32 _certificateId
+        "0x" + encryptedDocumentHash, // bytes32 _documentHash
+        ipfsCID, // string
+        formData.recipientAddress, // address
+        expiryTimestamp, // uint256
         {
           maxPriorityFeePerGas: ethers.parseUnits("30", "gwei"),
           maxFeePerGas: ethers.parseUnits("50", "gwei"),
@@ -216,7 +223,7 @@ export default function IssueCertificatePage() {
         throw new Error("certificateissued event not found");
       }
 
-      const contractCertificateId = event.args.certificateId.toString();
+      const contractCertificateId = event.args.certificateId;
 
       toast.loading("issuing certificate...", { id: toastId });
 

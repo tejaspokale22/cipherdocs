@@ -1,7 +1,7 @@
 import { ethers } from "ethers";
 import ABI from "@/app/abi/CipherDocs.json";
 
-const CONTRACT_ADDRESS = "0x39229Cf6eD13570b545f8250988DbE83e896758f";
+const CONTRACT_ADDRESS = "0x61d9B4Ed14c5e772f3293D6cC3472a1691023229";
 
 export const getCipherDocsContract = async () => {
   if (!window.ethereum) {
