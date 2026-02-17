@@ -491,3 +491,69 @@ export const verifyCertificate = async (req, res) => {
     });
   }
 };
+
+export const revokeCertificate = async (req, res) => {
+  try {
+    const { certId } = req.params;
+
+    if (!ethers.isHexString(certId, 32)) {
+      return res.status(400).json({
+        message: "Invalid certificate ID.",
+      });
+    }
+
+    const normalizedCertId = certId.toLowerCase();
+
+    // find certificate in db
+    const certificate = await Certificate.findOne({
+      contractCertificateId: normalizedCertId,
+    });
+
+    if (!certificate) {
+      return res.status(404).json({
+        message: "Certificate not found.",
+      });
+    }
+
+    // ensure logged-in user is issuer
+    if (
+      certificate.issuer.toString() !== req.user.id &&
+      req.user.role !== "issuer"
+    ) {
+      return res.status(403).json({
+        message: "Not authorized to revoke this certificate.",
+      });
+    }
+
+    // connect to blockchain
+    const provider = new ethers.JsonRpcProvider(process.env.AMOY_RPC_URL);
+
+    const contract = new ethers.Contract(
+      process.env.CONTRACT_ADDRESS,
+      CipherDocsABI,
+      provider,
+    );
+
+    const onChainCert = await contract.getCertificate(normalizedCertId);
+
+    // ensure blockchain state is revoked
+    if (!onChainCert.revoked) {
+      return res.status(400).json({
+        message: "Certificate is not revoked yet on blockchain.",
+      });
+    }
+
+    // update db
+    certificate.status = "revoked";
+    await certificate.save();
+
+    return res.json({
+      message: "Certificate revoked successfully.",
+    });
+  } catch (error) {
+    console.error("Revoke error:", error);
+    return res.status(500).json({
+      message: "Server error during revoke.",
+    });
+  }
+};

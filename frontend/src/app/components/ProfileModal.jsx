@@ -16,7 +16,7 @@ export default function ProfileModal({ user, onClose }) {
     try {
       await logout();
       setUser(null);
-      toast.success("Logged out successfully");
+      toast.success("Logged out successfully.");
       onClose?.();
       router.push("/");
     } catch (error) {

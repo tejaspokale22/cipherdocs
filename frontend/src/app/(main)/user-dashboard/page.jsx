@@ -98,18 +98,20 @@ export default function UserDashboardPage() {
 
   return (
     <ProtectedRoute requiredRole="user">
-      <main className="min-h-screen bg-white pt-24 pb-12 px-6 md:px-20 lg:px-36">
+      <main className="min-h-screen bg-white pt-24 pb-12 px-4 sm:px-6 md:px-16 lg:px-24">
         <div className="max-w-6xl mx-auto">
-          <div className="mb-8">
-            <h1 className="text-3xl font-semibold text-black">
-              My Certificates
-            </h1>
-            <p className="text-black/50 mt-1">
-              View and download your received certificates.
-            </p>
+          <div className="mb-8 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-semibold text-black">
+                My Certificates
+              </h1>
+              <p className="text-sm text-black/60 mt-1">
+                View and download your received certificates.
+              </p>
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-8">
             <StatCard
               icon={<FileText className="h-5 w-5 text-black/50" />}
               label="Total Received"
@@ -143,47 +145,51 @@ export default function UserDashboardPage() {
               </div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-sm">
+                <table className="w-full text-left text-xs sm:text-sm">
                   <thead className="bg-black/5">
                     <tr>
-                      <th className="px-6 py-3">Name</th>
-                      <th className="px-6 py-3">Issuer</th>
-                      <th className="px-6 py-3">Issued On</th>
-                      <th className="px-6 py-3">Status</th>
-                      <th className="px-6 py-3 text-center">Action</th>
+                      <th className="px-4 sm:px-6 py-3">Name</th>
+                      <th className="px-4 sm:px-6 py-3">Issuer</th>
+                      <th className="px-4 sm:px-6 py-3">Issued On</th>
+                      <th className="px-4 sm:px-6 py-3">Status</th>
+                      <th className="px-4 sm:px-6 py-3 text-center">Action</th>
                     </tr>
                   </thead>
                   <tbody>
                     {certificates.map((cert) => (
                       <tr key={cert._id} className="border-t border-black/10">
-                        <td className="px-6 py-4 font-medium">{cert.name}</td>
-                        <td className="px-6 py-4">
+                        <td className="px-4 sm:px-6 py-3 sm:py-4 font-medium">
+                          {cert.name}
+                        </td>
+                        <td className="px-4 sm:px-6 py-3 sm:py-4">
                           {cert.issuer?.username || "Unknown"}
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="px-4 sm:px-6 py-3 sm:py-4">
                           {new Date(cert.issueDate).toLocaleDateString()}
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="px-4 sm:px-6 py-3 sm:py-4">
                           <StatusBadge status={cert.status} />
                         </td>
-                        <td className="px-6 py-4 text-center flex items-center justify-center gap-2">
-                          <button
-                            onClick={() => generateQR(cert)}
-                            className="text-sm bg-black text-white px-4 py-2 rounded-md hover:bg-black/80 transition disabled:opacity-50 flex items-center gap-2 cursor-pointer"
-                          >
-                            <QrCode className="h-4 w-4" />
-                            Show QR
-                          </button>
-                          <button
-                            onClick={() => handleDownload(cert)}
-                            disabled={downloadingId === cert._id}
-                            className="text-sm bg-black text-white px-3 py-2 rounded-md hover:bg-black/80 transition disabled:opacity-50 flex items-center gap-2 cursor-pointer"
-                          >
-                            <Download className="h-4 w-4" />
-                            {downloadingId === cert._id
-                              ? "Downloading..."
-                              : "Download"}
-                          </button>
+                        <td className="px-4 sm:px-6 py-3 sm:py-4 text-center">
+                          <div className="flex flex-col xs:flex-row items-stretch xs:items-center justify-center gap-2">
+                            <button
+                              onClick={() => handleDownload(cert)}
+                              disabled={downloadingId === cert._id}
+                              className="text-xs sm:text-sm bg-black text-white px-3 py-2 rounded-md hover:bg-black/80 transition disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
+                            >
+                              <Download className="h-3 w-3 sm:h-4 sm:w-4" />
+                              {downloadingId === cert._id
+                                ? "Downloading..."
+                                : "Download"}
+                            </button>
+                            <button
+                              onClick={() => generateQR(cert)}
+                              className="text-xs sm:text-sm bg-white border border-black/30 text-black px-3 py-2 rounded-md hover:bg-black/5 transition disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
+                            >
+                              <QrCode className="h-3 w-3 sm:h-4 sm:w-4" />
+                              Show QR
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -206,12 +212,12 @@ export default function UserDashboardPage() {
 
 function StatCard({ icon, label, value }) {
   return (
-    <div className="bg-black/5 rounded-xl p-6 border border-black/10">
-      <div className="flex items-center gap-3 mb-2">
+    <div className="bg-black/5 rounded-xl p-4 sm:p-6 border border-black/10 flex items-center justify-between">
+      <div className="flex items-center gap-3">
         {icon}
-        <span className="text-sm text-black/50">{label}</span>
+        <span className="text-xs sm:text-sm text-black/60">{label}</span>
       </div>
-      <p className="text-3xl font-semibold">{value}</p>
+      <p className="text-2xl sm:text-3xl font-semibold text-black">{value}</p>
     </div>
   );
 }

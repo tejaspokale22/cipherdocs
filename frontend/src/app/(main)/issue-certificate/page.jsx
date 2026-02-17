@@ -33,7 +33,7 @@ export default function IssueCertificatePage() {
       setSelectedFile(file);
     } else {
       setSelectedFile(null);
-      toast.error("please select a valid PDF file");
+      toast.error("Please select a valid PDF file.");
     }
   };
 
@@ -47,7 +47,7 @@ export default function IssueCertificatePage() {
     if (isLoading) return; // prevent double execution
 
     if (!selectedFile) {
-      toast.error("original certificate is required");
+      toast.error("Original certificate is required.");
       return;
     }
 
@@ -173,7 +173,7 @@ export default function IssueCertificatePage() {
         await ensureAmoyNetwork();
       } catch (err) {
         toast.dismiss(toastId);
-        toast.error("Please approve network switch in MetaMask");
+        toast.error("Please approve network switch in MetaMask.");
         setIsLoading(false);
         return;
       }
@@ -237,7 +237,7 @@ export default function IssueCertificatePage() {
         .find((log) => log && log.name === "CertificateIssued");
 
       if (!event) {
-        throw new Error("certificateissued event not found");
+        throw new Error("certificateissued event not found.");
       }
 
       const contractCertificateId = event.args.certificateId;
@@ -274,7 +274,7 @@ export default function IssueCertificatePage() {
       }
 
       // success
-      toast.success("certificate issued successfully", { id: toastId });
+      toast.success("Certificate issued successfully.", { id: toastId });
 
       await mutate(MY_CERTIFICATES);
       await mutate(ISSUED_CERTIFICATES);
@@ -284,11 +284,11 @@ export default function IssueCertificatePage() {
       console.error(error);
 
       if (error.code === 4001) {
-        toast.error("Transaction rejected by user", { id: toastId });
+        toast.error("Transaction rejected by user.", { id: toastId });
       } else if (error.message?.toLowerCase().includes("insufficient funds")) {
-        toast.error("Insufficient POL balance for gas", { id: toastId });
+        toast.error("Insufficient POL balance for gas.", { id: toastId });
       } else {
-        toast.error("something went wrong", { id: toastId });
+        toast.error("Something went wrong.", { id: toastId });
       }
     } finally {
       setIsLoading(false);

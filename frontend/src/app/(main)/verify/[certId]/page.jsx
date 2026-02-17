@@ -4,6 +4,7 @@ import { AlertCircle, CircleCheck, FileText, Upload, X } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useState, useRef } from "react";
 import Spinner from "@/app/components/Spinner";
+import Link from "next/link";
 
 function cn(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -11,9 +12,9 @@ function cn(...classes) {
 
 const STATUS_CONFIG = {
   valid: {
-    label: "On-chain certificate verified",
+    label: "Certificate is valid and authentic.",
     badge: "VERIFIED",
-    badgeCls: "bg-black text-white",
+    badgeCls: "bg-green-600 text-white",
     headerCls: "bg-black text-white border-b border-white/10",
     cardCls: "bg-black text-white border-black",
     iconColor: "text-white",
@@ -22,7 +23,7 @@ const STATUS_CONFIG = {
     valueCls: "text-white",
   },
   revoked: {
-    label: "Certificate Revoked",
+    label: "Certificate has been revoked.",
     badge: "REVOKED",
     badgeCls: "bg-red-600 text-white",
     headerCls: "bg-red-50 text-black border-b border-red-100",
@@ -33,7 +34,7 @@ const STATUS_CONFIG = {
     valueCls: "text-black",
   },
   expired: {
-    label: "Certificate Expired",
+    label: "Certificate has been expired.",
     badge: "EXPIRED",
     badgeCls: "bg-orange-500 text-white",
     headerCls: "bg-orange-50 text-black border-b border-orange-100",
@@ -44,7 +45,7 @@ const STATUS_CONFIG = {
     valueCls: "text-black",
   },
   tampered: {
-    label: "Document Tampered",
+    label: "Document has been tampered.",
     badge: "TAMPERED",
     badgeCls: "bg-red-600 text-white",
     headerCls: "bg-red-50 text-black border-b border-red-100",
@@ -55,7 +56,7 @@ const STATUS_CONFIG = {
     valueCls: "text-black",
   },
   error: {
-    label: "Verification Error",
+    label: "Verification failed.",
     badge: "ERROR",
     badgeCls: "bg-gray-700 text-white",
     headerCls: "bg-gray-50 text-black border-b border-gray-100",
@@ -337,11 +338,21 @@ function VerificationResult({ result, cfg }) {
       {/* Detail rows — valid only */}
       {isValid && (
         <div>
-          <DataRow cfg={cfg} label="Issuer Wallet" value={result.issuer} mono />
-          <DataRow cfg={cfg} label="User Wallet" value={result.user} mono />
           <DataRow
             cfg={cfg}
-            label="Issued At"
+            label="Issuer Wallet Address"
+            value={result.issuer}
+            mono
+          />
+          <DataRow
+            cfg={cfg}
+            label="User Wallet Address"
+            value={result.user}
+            mono
+          />
+          <DataRow
+            cfg={cfg}
+            label="Certificate Issued At"
             value={
               result.issuedAt
                 ? new Date(Number(result.issuedAt)).toLocaleString()
@@ -351,7 +362,20 @@ function VerificationResult({ result, cfg }) {
           <DataRow
             cfg={cfg}
             label="Blockchain Tx"
-            value={result.blockchainTxHash}
+            value={
+              result.blockchainTxHash ? (
+                <Link
+                  href={`https://amoy.polygonscan.com/tx/${result.blockchainTxHash}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline underline-offset-2 text-blue-500 hover:text-blue-600"
+                >
+                  {result.blockchainTxHash}
+                </Link>
+              ) : (
+                "—"
+              )
+            }
             mono
             last
           />

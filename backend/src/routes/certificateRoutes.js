@@ -5,6 +5,7 @@ import {
   getMyCertificates,
   getIssuedCertificates,
   verifyCertificate,
+  revokeCertificate,
 } from "../controllers/certificateControllers.js";
 import { protect } from "../middlewares/authMiddlewares.js";
 
@@ -15,5 +16,6 @@ router.post("/issue", protect, issueCertificate);
 router.get("/my-certificates", protect, getMyCertificates);
 router.get("/issued-certificates", protect, getIssuedCertificates);
 router.post("/verify", verifyCertificate);
+router.patch("/revoke/:certId", protect, revokeCertificate);
 
 export default router;

@@ -138,7 +138,7 @@ export default function QrModal({ open, onClose, qrSrc, verifyUrl }) {
                 </button>
                 <button
                   onClick={handleCopyLink}
-                  className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 rounded-lg border border-black/15 text-sm sm:text-base text-black hover:bg-black/5 transition cursor-pointer"
+                  className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 rounded-lg border border-black/30 text-sm sm:text-base text-black hover:bg-black/5 transition cursor-pointer"
                   type="button"
                 >
                   <Copy className="h-5 w-5" />
