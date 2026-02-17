@@ -336,7 +336,7 @@ export const getIssuedCertificates = async (req, res) => {
   } catch (error) {
     console.error("Get Issued Certificates Error:", error);
     return res.status(500).json({
-      message: "Server error while fetching issued certificates",
+      message: "Server error while fetching issued certificates.",
     });
   }
 };
@@ -349,23 +349,22 @@ export const verifyCertificate = async (req, res) => {
     if (!certId || !originalDocumentHash) {
       return res.status(400).json({
         status: "error",
-        message: "certId and originalDocumentHash are required",
+        message: "certId and originalDocumentHash are required.",
       });
     }
 
-    // ensure certId is valid bytes32
+    // validate bytes32 format
     if (!ethers.isHexString(certId, 32)) {
       return res.status(400).json({
         status: "error",
-        message: "Invalid certificate ID format",
+        message: "Invalid certificate ID format.",
       });
     }
 
-    // normalize values for safe comparison
     const normalizedCertId = certId.toLowerCase();
-    const normalizedOriginalHash = originalDocumentHash.toLowerCase();
+    const uploadedHash = originalDocumentHash.toLowerCase();
 
-    // find certificate in database
+    // fetch certificate from database
     const certificate = await Certificate.findOne({
       contractCertificateId: normalizedCertId,
     }).populate("issuer", "walletAddress");
@@ -373,22 +372,11 @@ export const verifyCertificate = async (req, res) => {
     if (!certificate) {
       return res.status(404).json({
         status: "error",
-        message: "Certificate not found",
+        message: "Certificate not found.",
       });
     }
 
-    // integrity check - verify uploaded document hash matches stored original hash
-    if (
-      certificate.originalDocumentHash.toLowerCase() !== normalizedOriginalHash
-    ) {
-      return res.json({
-        status: "tampered",
-        message:
-          "Uploaded document does not match the originally issued certificate",
-      });
-    }
-
-    // connect to blockchain provider
+    // connect to blockchain
     const provider = new ethers.JsonRpcProvider(process.env.AMOY_RPC_URL);
 
     const contract = new ethers.Contract(
@@ -397,38 +385,82 @@ export const verifyCertificate = async (req, res) => {
       provider,
     );
 
-    // fetch certificate from blockchain using getCertificate
     const onChainCert = await contract.getCertificate(normalizedCertId);
 
-    // check if certificate exists on chain
     if (onChainCert.issuer === ethers.ZeroAddress) {
       return res.json({
         status: "error",
-        message: "Certificate not found on blockchain",
+        message: "Certificate not found on blockchain.",
       });
     }
 
-    // compare encrypted document hash stored in db with blockchain hash
-    const chainDocumentHash = onChainCert.documentHash
+    // verify encrypted document hash against blockchain
+    const chainEncryptedHash = onChainCert.documentHash
       .toLowerCase()
       .replace("0x", "");
 
-    if (chainDocumentHash !== certificate.encryptedDocumentHash.toLowerCase()) {
+    if (
+      chainEncryptedHash !== certificate.encryptedDocumentHash.toLowerCase()
+    ) {
       return res.json({
         status: "error",
-        message: "Blockchain record mismatch detected",
+        message: "Blockchain hash mismatch.",
       });
     }
 
-    // check if certificate is revoked
+    // download encrypted file from ipfs
+    const encryptedBuffer = await getCertificateFromIPFS(certificate.ipfsCID);
+
+    // verify encrypted file integrity
+    const encryptedFileHash = crypto
+      .createHash("sha256")
+      .update(encryptedBuffer)
+      .digest("hex");
+
+    if (encryptedFileHash !== chainEncryptedHash) {
+      return res.json({
+        status: "error",
+        message: "Encrypted file integrity compromised.",
+      });
+    }
+
+    // decrypt aes key using master secret
+    const aesKeyBuffer = decryptAESKey(
+      certificate.encryptedAESKey,
+      certificate.envelopeIV,
+    );
+
+    // decrypt file
+    const decryptedBuffer = decryptFileBuffer(
+      encryptedBuffer,
+      aesKeyBuffer,
+      certificate.fileIV,
+    );
+
+    // compute original hash from decrypted file
+    const decryptedHash = crypto
+      .createHash("sha256")
+      .update(decryptedBuffer)
+      .digest("hex");
+
+    // compare uploaded file hash with decrypted hash
+    if (decryptedHash !== uploadedHash) {
+      return res.json({
+        status: "tampered",
+        message:
+          "Uploaded document does not match the originally issued certificate.",
+      });
+    }
+
+    // revoked check
     if (onChainCert.revoked) {
       return res.json({
         status: "revoked",
-        message: "Certificate has been revoked by issuer",
+        message: "Certificate has been revoked.",
       });
     }
 
-    // check if certificate has expired
+    // expiry check
     const currentTimestamp = Math.floor(Date.now() / 1000);
 
     if (
@@ -437,25 +469,25 @@ export const verifyCertificate = async (req, res) => {
     ) {
       return res.json({
         status: "expired",
-        message: "Certificate has expired",
+        message: "Certificate has expired.",
       });
     }
 
-    // certificate is valid
+    // final valid response
     return res.json({
       status: "valid",
       issuer: certificate.issuer.walletAddress,
       user: onChainCert.user,
       issuedAt: Number(onChainCert.issuedAt) * 1000,
       blockchainTxHash: certificate.blockchainTxHash,
-      message: "Certificate is valid and authentic",
+      message: "Certificate is valid and authentic.",
     });
   } catch (error) {
     console.error("Verification error:", error);
 
     return res.status(500).json({
       status: "error",
-      message: "Verification failed due to server error",
+      message: "Verification failed due to server error.",
     });
   }
 };

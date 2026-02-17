@@ -23,7 +23,7 @@ export default function UserDashboardPage() {
   });
   const [downloadingId, setDownloadingId] = useState(null);
   const [qrMap, setQrMap] = useState({});
-  const [qrModal, setQrModal] = useState({ open: false, src: null });
+  const [qrModal, setQrModal] = useState({ open: false, src: null, link: null });
 
   // show error toast safely
   useEffect(() => {
@@ -86,7 +86,7 @@ export default function UserDashboardPage() {
         ...prev,
         [cert._id]: qrImage,
       }));
-      setQrModal({ open: true, src: qrImage });
+      setQrModal({ open: true, src: qrImage, link: verifyUrl });
     } catch (err) {
       toast.error("Failed to generate QR. Please try again.");
     }
@@ -101,7 +101,7 @@ export default function UserDashboardPage() {
               My Certificates
             </h1>
             <p className="text-black/50 mt-1">
-              View and download your received certificates
+              View and download your received certificates.
             </p>
           </div>
 
@@ -173,7 +173,7 @@ export default function UserDashboardPage() {
                           <button
                             onClick={() => handleDownload(cert)}
                             disabled={downloadingId === cert._id}
-                            className="text-sm bg-black text-white px-4 py-2 rounded-md hover:bg-black/80 transition disabled:opacity-50 flex items-center gap-2 cursor-pointer"
+                            className="text-sm bg-black text-white px-3 py-2 rounded-md hover:bg-black/80 transition disabled:opacity-50 flex items-center gap-2 cursor-pointer"
                           >
                             <Download className="h-4 w-4" />
                             {downloadingId === cert._id
@@ -192,8 +192,9 @@ export default function UserDashboardPage() {
       </main>
       <QrModal
         open={qrModal.open}
-        onClose={() => setQrModal({ open: false, src: null })}
+        onClose={() => setQrModal({ open: false, src: null, link: null })}
         qrSrc={qrModal.src}
+        verifyUrl={qrModal.link}
       />
     </ProtectedRoute>
   );

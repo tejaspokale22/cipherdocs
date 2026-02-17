@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect } from "react";
-import { X, Share2 } from "lucide-react";
+import { Copy, Share2, X } from "lucide-react";
 import Image from "next/image";
 import toast from "react-hot-toast";
 
-export default function QrModal({ open, onClose, qrSrc }) {
+export default function QrModal({ open, onClose, qrSrc, verifyUrl }) {
   // close on escape key
   useEffect(() => {
     if (!open) return;
@@ -57,9 +57,36 @@ export default function QrModal({ open, onClose, qrSrc }) {
       }
       // Fallback: copy to clipboard
       await navigator.clipboard.writeText(qrSrc);
-      toast.success("QR link copied to clipboard");
+      toast.success("QR link copied to clipboard.");
     } catch {
       toast.error("Unable to share QR");
+    }
+  };
+
+  const handleCopyLink = async () => {
+    if (!verifyUrl) {
+      toast.error("Verification link not available.");
+      return;
+    }
+
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(verifyUrl);
+      } else {
+        const textarea = document.createElement("textarea");
+        textarea.value = verifyUrl;
+        textarea.style.position = "fixed";
+        textarea.style.opacity = "0";
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textarea);
+      }
+
+      toast.success("Verification link copied.");
+    } catch {
+      toast.error("Failed to copy link.");
     }
   };
 
@@ -100,14 +127,24 @@ export default function QrModal({ open, onClose, qrSrc }) {
                 unoptimized
               />
 
-              <button
-                onClick={handleShare}
-                className="mt-6 flex items-center gap-2 px-6 py-3 rounded-lg bg-black text-white hover:bg-black/80 transition text-base cursor-pointer"
-                type="button"
-              >
-                <Share2 className="h-5 w-5" />
-                Share
-              </button>
+              <div className="mt-6 flex flex-col sm:flex-row gap-3 w-full justify-center">
+                <button
+                  onClick={handleShare}
+                  className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-black text-white hover:bg-black/80 transition text-sm sm:text-base cursor-pointer"
+                  type="button"
+                >
+                  <Share2 className="h-5 w-5" />
+                  Share
+                </button>
+                <button
+                  onClick={handleCopyLink}
+                  className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 rounded-lg border border-black/15 text-sm sm:text-base text-black hover:bg-black/5 transition cursor-pointer"
+                  type="button"
+                >
+                  <Copy className="h-5 w-5" />
+                  Copy verification link
+                </button>
+              </div>
             </>
           ) : (
             <p className="text-sm text-black/50">QR code not available</p>

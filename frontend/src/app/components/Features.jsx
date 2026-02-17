@@ -61,8 +61,7 @@ export default function Features() {
             Features
           </span>
           <h2 className="text-2xl font-semibold tracking-tight text-black sm:mt-8 sm:text-3xl lg:text-4xl">
-            What You Can Do with cipherdocs
-            <span className="text-green-500">.</span>
+            What You Can Do with cipherdocs.
           </h2>
         </div>
         <div className="mt-8 grid gap-4 xs:grid-cols-1 sm:mt-12 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">

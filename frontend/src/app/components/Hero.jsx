@@ -12,13 +12,12 @@ export default function Hero() {
   const { user } = useAuth();
 
   return (
-    <section className="bg-white text-black min-h-screen flex items-center md:pt-18 pt-10">
+    <section className="bg-white text-black min-h-screen flex items-center md:pt-16 pt-10">
       <div className="mx-auto flex w-full max-w-[90vw] flex-col items-center gap-20 px-4 sm:px-10 lg:flex-row lg:items-center lg:px-12">
         {/* Left Content */}
         <div className="flex-1 space-y-4 text-left">
           <h1 className="text-3xl font-semibold leading-[1.15] tracking-tight sm:text-4xl md:text-4xl xl:text-5xl">
-            Trust any document with cipherdocs
-            <span className="text-green-500">.</span>
+            Trust any document with cipherdocs.
           </h1>
 
           <p className="max-w-md text-sm leading-relaxed text-black/60 md:text-base">

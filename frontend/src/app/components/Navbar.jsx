@@ -35,7 +35,7 @@ export default function Navbar() {
   return (
     <header className="fixed top-0 left-0 right-0 z-40 bg-black text-white w-full">
       <nav className="mx-auto flex h-16 items-center justify-between px-3 sm:px-4 md:px-8 lg:px-20 xl:px-36 max-w-full">
-        <Logo size={isTablet ? 140 : 180} variant="light" />
+        <Logo size={isTablet ? 135 : 175} variant="light" />
         {/* Desktop nav */}
         <div className="hidden md:flex items-center gap-2">
           {navLinks
