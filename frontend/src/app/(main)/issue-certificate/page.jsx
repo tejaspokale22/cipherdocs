@@ -118,7 +118,7 @@ export default function IssueCertificatePage() {
 
       // call backend prepare
       const prepareRes = await fetch(
-        "http://localhost:5000/api/certificates/prepare",
+        `${process.env.NEXT_PUBLIC_API_URL}/api/certificates/prepare`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -246,7 +246,7 @@ export default function IssueCertificatePage() {
 
       // call backend final issue
       const issueRes = await fetch(
-        "http://localhost:5000/api/certificates/issue",
+        `${process.env.NEXT_PUBLIC_API_URL}/api/certificates/issue`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

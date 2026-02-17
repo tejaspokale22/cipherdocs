@@ -100,11 +100,14 @@ export default function VerifyCertificatePage() {
         .map((b) => b.toString(16).padStart(2, "0"))
         .join("");
 
-      const res = await fetch("http://localhost:5000/api/certificates/verify", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ certId, originalDocumentHash: hashHex }),
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/certificates/verify`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ certId, originalDocumentHash: hashHex }),
+        },
+      );
 
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Verification failed");

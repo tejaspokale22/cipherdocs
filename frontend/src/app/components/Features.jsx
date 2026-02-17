@@ -57,9 +57,6 @@ export default function Features() {
     <section className="bg-white pb-10 pt-2 sm:pb-16">
       <div className="mx-auto max-w-[85vw] px-3 sm:px-6 lg:px-8">
         <div className="text-center">
-          <span className="inline-block rounded-full bg-black/10 px-3 py-1 text-xs sm:px-4 sm:py-1.5 sm:text-sm font-medium text-black">
-            Features
-          </span>
           <h2 className="text-2xl font-semibold tracking-tight text-black sm:mt-8 sm:text-3xl lg:text-4xl">
             What You Can Do with cipherdocs.
           </h2>

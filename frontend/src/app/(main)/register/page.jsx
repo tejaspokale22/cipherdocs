@@ -3,8 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-import { User, Briefcase, ArrowLeft, CheckCircle2 } from "lucide-react";
-import Link from "next/link";
+import { User, Briefcase, CheckCircle2 } from "lucide-react";
 import { verifyUser } from "@/app/lib/authApi";
 import Spinner from "@/app/components/Spinner";
 

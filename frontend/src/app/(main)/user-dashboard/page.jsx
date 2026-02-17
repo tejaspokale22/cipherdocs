@@ -23,7 +23,11 @@ export default function UserDashboardPage() {
   });
   const [downloadingId, setDownloadingId] = useState(null);
   const [qrMap, setQrMap] = useState({});
-  const [qrModal, setQrModal] = useState({ open: false, src: null, link: null });
+  const [qrModal, setQrModal] = useState({
+    open: false,
+    src: null,
+    link: null,
+  });
 
   // show error toast safely
   useEffect(() => {
@@ -80,7 +84,7 @@ export default function UserDashboardPage() {
   // generate QR code
   const generateQR = async (cert) => {
     try {
-      const verifyUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/verify/${cert.contractCertificateId}`;
+      const verifyUrl = `${process.env.NEXT_PUBLIC_API_URL}/verify/${cert.contractCertificateId}`;
       const qrImage = await QRCode.toDataURL(verifyUrl);
       setQrMap((prev) => ({
         ...prev,

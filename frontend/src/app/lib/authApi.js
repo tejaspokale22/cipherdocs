@@ -1,14 +1,15 @@
-const BASE_URL = "http://localhost:5000";
-
 // request nonce
 export async function requestNonce(walletAddress) {
-  const res = await fetch(`${BASE_URL}/api/auth/request-nonce`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/auth/request-nonce`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ walletAddress }),
     },
-    body: JSON.stringify({ walletAddress }),
-  });
+  );
 
   if (!res.ok) {
     throw new Error("failed to fetch nonce");
@@ -19,14 +20,17 @@ export async function requestNonce(walletAddress) {
 
 // verify login
 export async function verifyUser(payload) {
-  const res = await fetch(`${BASE_URL}/api/auth/verify`, {
-    method: "POST",
-    credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/auth/verify`,
+    {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
     },
-    body: JSON.stringify(payload),
-  });
+  );
 
   const data = await res.json();
 
@@ -40,10 +44,13 @@ export async function verifyUser(payload) {
 // get current session
 export async function getSession() {
   try {
-    const res = await fetch(`${BASE_URL}/api/auth/session`, {
-      method: "GET",
-      credentials: "include", // important for cookies
-    });
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/auth/session`,
+      {
+        method: "GET",
+        credentials: "include", // important for cookies
+      },
+    );
 
     if (!res.ok) {
       return null;
@@ -59,7 +66,7 @@ export async function getSession() {
 // logout
 export async function logout() {
   try {
-    await fetch(`${BASE_URL}/api/auth/logout`, {
+    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/logout`, {
       method: "POST",
       credentials: "include",
     });

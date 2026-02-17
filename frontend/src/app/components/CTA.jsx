@@ -1,9 +1,9 @@
-import { ArrowRight, Shield, Zap } from "lucide-react";
+import { ArrowRight, Database, QrCode } from "lucide-react";
 import Link from "next/link";
 
 export default function CTA() {
   return (
-    <section className="bg-white py-20 sm:py-24">
+    <section className="bg-white py-16">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="relative overflow-hidden rounded-3xl bg-linear-to-br from-black to-black/90 p-8 sm:p-12 lg:p-16">
           {/* Background decoration */}
@@ -37,15 +37,15 @@ export default function CTA() {
 
             <div className="mt-10 flex flex-col items-center justify-center gap-6 sm:flex-row sm:gap-12">
               <div className="flex items-center gap-2 text-white/80">
-                <Shield className="h-5 w-5" />
+                <QrCode className="h-5 w-5" />
                 <span className="text-sm font-medium">
-                  No credit card required
+                  Instant QR code based fast verification
                 </span>
               </div>
               <div className="flex items-center gap-2 text-white/80">
-                <Zap className="h-5 w-5" />
+                <Database className="h-5 w-5" />
                 <span className="text-sm font-medium">
-                  Setup in under 5 minutes
+                  Blockchain based tamper-proof system
                 </span>
               </div>
             </div>
