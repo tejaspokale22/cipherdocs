@@ -8,6 +8,15 @@ import {
 import { ethers } from "ethers";
 import Certificate from "../models/Certificate.js";
 import { decryptAESKey, decryptFileBuffer } from "../utils/decryption.js";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const abiPath = path.join(__dirname, "../abi/CipherDocs.json");
+const CipherDocsABI = JSON.parse(fs.readFileSync(abiPath, "utf-8"));
 
 export const prepareCertificate = async (req, res) => {
   try {
@@ -328,6 +337,125 @@ export const getIssuedCertificates = async (req, res) => {
     console.error("Get Issued Certificates Error:", error);
     return res.status(500).json({
       message: "Server error while fetching issued certificates",
+    });
+  }
+};
+
+export const verifyCertificate = async (req, res) => {
+  try {
+    const { certId, originalDocumentHash } = req.body;
+
+    // validate required fields
+    if (!certId || !originalDocumentHash) {
+      return res.status(400).json({
+        status: "error",
+        message: "certId and originalDocumentHash are required",
+      });
+    }
+
+    // ensure certId is valid bytes32
+    if (!ethers.isHexString(certId, 32)) {
+      return res.status(400).json({
+        status: "error",
+        message: "Invalid certificate ID format",
+      });
+    }
+
+    // normalize values for safe comparison
+    const normalizedCertId = certId.toLowerCase();
+    const normalizedOriginalHash = originalDocumentHash.toLowerCase();
+
+    // find certificate in database
+    const certificate = await Certificate.findOne({
+      contractCertificateId: normalizedCertId,
+    }).populate("issuer", "walletAddress");
+
+    if (!certificate) {
+      return res.status(404).json({
+        status: "error",
+        message: "Certificate not found",
+      });
+    }
+
+    // integrity check - verify uploaded document hash matches stored original hash
+    if (
+      certificate.originalDocumentHash.toLowerCase() !== normalizedOriginalHash
+    ) {
+      return res.json({
+        status: "tampered",
+        message:
+          "Uploaded document does not match the originally issued certificate",
+      });
+    }
+
+    // connect to blockchain provider
+    const provider = new ethers.JsonRpcProvider(process.env.AMOY_RPC_URL);
+
+    const contract = new ethers.Contract(
+      process.env.CONTRACT_ADDRESS,
+      CipherDocsABI,
+      provider,
+    );
+
+    // fetch certificate from blockchain using getCertificate
+    const onChainCert = await contract.getCertificate(normalizedCertId);
+
+    // check if certificate exists on chain
+    if (onChainCert.issuer === ethers.ZeroAddress) {
+      return res.json({
+        status: "error",
+        message: "Certificate not found on blockchain",
+      });
+    }
+
+    // compare encrypted document hash stored in db with blockchain hash
+    const chainDocumentHash = onChainCert.documentHash
+      .toLowerCase()
+      .replace("0x", "");
+
+    if (chainDocumentHash !== certificate.encryptedDocumentHash.toLowerCase()) {
+      return res.json({
+        status: "error",
+        message: "Blockchain record mismatch detected",
+      });
+    }
+
+    // check if certificate is revoked
+    if (onChainCert.revoked) {
+      return res.json({
+        status: "revoked",
+        message: "Certificate has been revoked by issuer",
+      });
+    }
+
+    // check if certificate has expired
+    const currentTimestamp = Math.floor(Date.now() / 1000);
+
+    if (
+      Number(onChainCert.expiry) > 0 &&
+      Number(onChainCert.expiry) < currentTimestamp
+    ) {
+      return res.json({
+        status: "expired",
+        message: "Certificate has expired",
+      });
+    }
+
+    // certificate is valid
+    return res.json({
+      status: "valid",
+      issuer: certificate.issuer.walletAddress,
+      user: onChainCert.user,
+      issuedAt: Number(onChainCert.issuedAt) * 1000,
+      blockchainTxHash: certificate.blockchainTxHash,
+      message: "Certificate is valid and authentic",
+    });
+  } catch (error) {
+    console.error("Verification error:", error);
+
+    return res.status(500).json({
+      status: "error",
+      message: "Verification failed due to server error",
     });
   }
 };

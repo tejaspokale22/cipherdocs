@@ -126,14 +126,14 @@ export const verify = async (req, res) => {
         role: user.role,
       },
       process.env.JWT_SECRET,
-      { expiresIn: "7d" },
+      { expiresIn: "6h" },
     );
 
     res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
+      maxAge: 6 * 60 * 60 * 1000, // 6 hours in milliseconds
     });
 
     return res.json({
