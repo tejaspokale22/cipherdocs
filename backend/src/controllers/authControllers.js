@@ -131,9 +131,9 @@ export const verify = async (req, res) => {
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
-      maxAge: 6 * 60 * 60 * 1000, // 6 hours in milliseconds
+      secure: true,
+      sameSite: "none",
+      maxAge: 6 * 60 * 60 * 1000,
     });
 
     return res.json({
