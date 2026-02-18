@@ -1,32 +1,12 @@
 "use client";
 
-import { useEffect } from "react";
-import { Copy, Share2, X } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Copy, Share2, X, Check } from "lucide-react";
 import Image from "next/image";
 import toast from "react-hot-toast";
 
-export default function QrModal({ open, onClose, qrSrc, verifyUrl }) {
-  // close on escape key
-  useEffect(() => {
-    if (!open) return;
-
-    const handleEsc = (e) => {
-      if (e.key === "Escape") {
-        onClose();
-      }
-    };
-
-    document.addEventListener("keydown", handleEsc);
-
-    // prevent background scroll
-    document.body.style.overflow = "hidden";
-
-    return () => {
-      document.removeEventListener("keydown", handleEsc);
-      document.body.style.overflow = "auto";
-    };
-  }, [open, onClose]);
-
+export default function QrModal({ open, onClose, qrSrc, verifyUrl, cert }) {
+  const [copy, setCopy] = useState(false);
   const handleShare = async () => {
     if (!qrSrc) return;
     try {
@@ -70,19 +50,14 @@ export default function QrModal({ open, onClose, qrSrc, verifyUrl }) {
     }
 
     try {
-      if (navigator.clipboard?.writeText) {
-        await navigator.clipboard.writeText(verifyUrl);
-      } else {
-        const textarea = document.createElement("textarea");
-        textarea.value = verifyUrl;
-        textarea.style.position = "fixed";
-        textarea.style.opacity = "0";
-        document.body.appendChild(textarea);
-        textarea.focus();
-        textarea.select();
-        document.execCommand("copy");
-        document.body.removeChild(textarea);
-      }
+      await navigator.clipboard.writeText(verifyUrl);
+
+      setCopy(true);
+
+      // reset after 1600ms
+      setTimeout(() => {
+        setCopy(false);
+      }, 1400);
 
       toast.success("Verification link copied.");
     } catch {
@@ -114,7 +89,12 @@ export default function QrModal({ open, onClose, qrSrc, verifyUrl }) {
         </button>
 
         <div className="flex flex-col items-center">
-          <h3 className="text-lg font-semibold mb-4">Certificate QR Code</h3>
+          <h3 className="text-lg font-semibold text-center mb-3">
+            {cert?.name ?? "Certificate QR Code"}
+            <p className="text-sm text-black/80 font-light mt-1">
+              Share and verify instantly.
+            </p>
+          </h3>
 
           {qrSrc ? (
             <>
@@ -138,10 +118,14 @@ export default function QrModal({ open, onClose, qrSrc, verifyUrl }) {
                 </button>
                 <button
                   onClick={handleCopyLink}
-                  className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 rounded-lg border border-black/30 text-sm sm:text-base text-black hover:bg-black/5 transition cursor-pointer"
+                  className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 rounded-lg border border-black/30 text-sm text-black hover:bg-black/5 transition cursor-pointer"
                   type="button"
                 >
-                  <Copy className="h-5 w-5" />
+                  {copy ? (
+                    <Check className="h-6 w-6" />
+                  ) : (
+                    <Copy className="h-6 w-6" />
+                  )}
                   Copy verification link
                 </button>
               </div>

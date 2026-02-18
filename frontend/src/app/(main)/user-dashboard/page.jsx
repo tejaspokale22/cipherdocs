@@ -27,6 +27,7 @@ export default function UserDashboardPage() {
     open: false,
     src: null,
     link: null,
+    cert: null,
   });
 
   // show error toast safely
@@ -92,7 +93,7 @@ export default function UserDashboardPage() {
         ...prev,
         [cert._id]: qrImage,
       }));
-      setQrModal({ open: true, src: qrImage, link: verifyUrl });
+      setQrModal({ open: true, src: qrImage, link: verifyUrl, cert });
     } catch (err) {
       toast.error("Failed to generate QR. Please try again.");
     }
@@ -207,6 +208,7 @@ export default function UserDashboardPage() {
         onClose={() => setQrModal({ open: false, src: null, link: null })}
         qrSrc={qrModal.src}
         verifyUrl={qrModal.link}
+        cert={qrModal.cert}
       />
     </ProtectedRoute>
   );

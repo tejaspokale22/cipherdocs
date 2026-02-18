@@ -98,7 +98,7 @@ export default function ConnectWalletButton() {
     <button
       onClick={handleConnect}
       disabled={connecting}
-      className="flex items-center gap-2 rounded-full bg-white px-3 py-1.5 text-base font-semibold text-black hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transition-colors"
+      className="flex items-center gap-2 rounded-full bg-white px-3 py-1.5 text-base font-semibold text-black hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transition-all duration-300"
     >
       <Image src={metamaskIcon} alt="MetaMask" width={20} height={20} />
       {connecting ? "Connecting..." : "Connect Wallet"}
