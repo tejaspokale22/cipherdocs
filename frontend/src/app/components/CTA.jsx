@@ -28,7 +28,7 @@ export default function CTA() {
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </Link>
               <Link
-                href="#"
+                href="https://drive.google.com/file/d/1p8YxuRGFv6lTcjeTwlK3nJgG-tc432M_/view"
                 className="inline-flex items-center gap-2 rounded-full border-2 border-white/30 px-6 py-3 text-base font-semibold text-white transition-all hover:border-white hover:bg-white/10 sm:px-8 sm:py-4"
               >
                 View Demo
