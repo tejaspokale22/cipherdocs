@@ -8,7 +8,7 @@ const certificateSchema = new mongoose.Schema(
       trim: true,
     },
 
-    originalDocumentHash: {
+    documentHMAC: {
       type: String,
       required: true,
     },
@@ -24,7 +24,6 @@ const certificateSchema = new mongoose.Schema(
       trim: true,
     },
 
-    // Envelope Encryption Fields
     encryptedAESKey: {
       type: String,
       required: true,
@@ -40,7 +39,6 @@ const certificateSchema = new mongoose.Schema(
       required: true,
     },
 
-    // References
     issuer: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -53,7 +51,6 @@ const certificateSchema = new mongoose.Schema(
       required: true,
     },
 
-    // Blockchain Metadata
     blockchainTxHash: {
       type: String,
       required: true,

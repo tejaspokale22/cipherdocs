@@ -28,14 +28,13 @@ export default function Roles() {
         <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-12 text-center tracking-tight">
           Type of users
         </h2>
-        <div className="flex xs:flex-row justify-center items-stretch gap-8">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-3 sm:gap-8">
           {roles.map((role) => {
             const Icon = role.icon;
             return (
               <div
                 key={role.title}
-                className="group flex-1 flex flex-col items-center justify-between bg-white/10 p-8 mx-auto max-w-sm rounded-2xl hover:bg-white/15"
-                style={{ minWidth: 0 }}
+                className="group flex flex-col items-center justify-between bg-white/10 p-8 rounded-2xl hover:bg-white/15"
               >
                 <div className="flex flex-col items-center">
                   <div className="mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-primary-600/80 shadow-lg border-4 border-white/20">

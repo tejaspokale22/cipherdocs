@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import toast from "react-hot-toast";
 import { FileText, Upload, Calendar, Wallet, X } from "lucide-react";
+import toast from "react-hot-toast";
 import ProtectedRoute from "@/app/components/ProtectedRoute";
 import Spinner from "@/app/components/Spinner";
 import { getCipherDocsContract } from "@/app/lib/contract.js";
@@ -150,7 +150,7 @@ export default function IssueCertificatePage() {
       // handle other prepare errors
       if (!prepareRes.ok) {
         toast.dismiss(toastId);
-        toast.error("prepare failed");
+        toast.error("Please try again.");
         setIsLoading(false);
         return;
       }
@@ -162,6 +162,7 @@ export default function IssueCertificatePage() {
         fileIV,
         envelopeIV,
         recipientId,
+        documentHMAC,
       } = prepareData.data;
 
       toast.loading("waiting for metamask confirmation...", {
@@ -180,8 +181,6 @@ export default function IssueCertificatePage() {
 
       // get contract instance
       const contract = await getCipherDocsContract();
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const signer = await provider.getSigner();
 
       // calculate expiry timestamp
       let expiryTimestamp = 0;
@@ -253,7 +252,7 @@ export default function IssueCertificatePage() {
           credentials: "include",
           body: JSON.stringify({
             name: formData.name,
-            originalDocumentHash,
+            documentHMAC,
             encryptedDocumentHash,
             ipfsCID,
             encryptedAESKey,
@@ -270,14 +269,21 @@ export default function IssueCertificatePage() {
       const issueData = await issueRes.json();
 
       if (!issueRes.ok) {
-        throw new Error(issueData.message || "issue failed");
+        throw new Error(issueData.message || "Please try again.");
       }
 
       // success
       toast.success("Certificate issued successfully.", { id: toastId });
 
-      await mutate(MY_CERTIFICATES);
-      await mutate(ISSUED_CERTIFICATES);
+      mutate(MY_CERTIFICATES, {
+        optimisticData: (prev = []) => [...prev, issueData.data],
+        rollbackOnError: true,
+      });
+
+      mutate(ISSUED_CERTIFICATES, {
+        optimisticData: (prev = []) => [...prev, issueData.data],
+        rollbackOnError: true,
+      });
 
       router.push("/issuer-dashboard");
     } catch (error) {

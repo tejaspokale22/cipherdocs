@@ -10,7 +10,7 @@ export const uploadToIPFS = async (fileBuffer) => {
   const fileHash = crypto.createHash("sha256").update(fileBuffer).digest("hex");
   const requestId = crypto.randomUUID();
 
-  console.log(`[IPFS] [${requestId}] Starting upload. Hash: ${fileHash}`);
+  // console.log(`[IPFS] [${requestId}] Starting upload. Hash: ${fileHash}`);
 
   try {
     // Validate buffer
@@ -47,9 +47,9 @@ export const uploadToIPFS = async (fileBuffer) => {
       throw new Error("Invalid response from IPFS provider");
     }
 
-    console.log(
-      `[IPFS] [${requestId}] Upload successful. CID: ${response.data.IpfsHash}`,
-    );
+    // console.log(
+    //   `[IPFS] [${requestId}] Upload successful. CID: ${response.data.IpfsHash}`,
+    // );
 
     return response.data.IpfsHash;
   } catch (error) {

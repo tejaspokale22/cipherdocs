@@ -31,26 +31,30 @@ export default function IssuerDashboardPage() {
 
   // memoized stats
   const { totalIssued, uniqueRecipients, revokedExpired } = useMemo(() => {
-    const totalIssued = certificates.length;
+    // Ensure certificates is always an array
+    const safeCertificates = Array.isArray(certificates) ? certificates : [];
 
-    const uniqueRecipients = new Set(certificates.map((c) => c.recipient?._id))
-      .size;
+    const totalIssued = safeCertificates.length;
 
-    const revokedExpired = certificates.filter((c) => {
-      const isRevoked = c.status === "revoked" || c.revoked;
+    const uniqueRecipients = new Set(
+      safeCertificates.map((c) => c?.recipient?._id).filter(Boolean), // remove undefined/null
+    ).size;
+
+    const revokedExpired = safeCertificates.filter((c) => {
+      if (!c) return false;
+
+      const isRevoked = c.status === "revoked" || c.revoked === true;
+
       const isExpiredValue =
-        c.expiryDate && new Date(c.expiryDate) < new Date();
+        c?.expiryDate &&
+        !isNaN(new Date(c.expiryDate)) &&
+        new Date(c.expiryDate) < new Date();
+
       return isRevoked || isExpiredValue;
     }).length;
 
     return { totalIssued, uniqueRecipients, revokedExpired };
   }, [certificates]);
-
-  // check expiry
-  const isExpired = (cert) => {
-    if (!cert.expiryDate) return false;
-    return new Date(cert.expiryDate) < new Date();
-  };
 
   // revoke handler
   const handleRevoke = async () => {
@@ -186,63 +190,67 @@ export default function IssuerDashboardPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {certificates.map((cert) => {
-                      let statusLabel;
+                    {certificates.length > 0 &&
+                      certificates.map((cert) => {
+                        let statusLabel;
 
-                      if (cert.status === "revoked" || cert.revoked) {
-                        statusLabel = "Revoked";
-                      } else if (isExpired(cert)) {
-                        statusLabel = "Expired";
-                      } else if (cert.status === "active") {
-                        statusLabel = "Active";
-                      } else {
-                        statusLabel =
-                          cert.status.charAt(0).toUpperCase() +
-                          cert.status.slice(1);
-                      }
+                        if (cert.status === "revoked") {
+                          statusLabel = "Revoked";
+                        } else if (cert.status === "expired") {
+                          statusLabel = "Expired";
+                        } else if (cert.status === "active") {
+                          statusLabel = "Active";
+                        } else {
+                          statusLabel =
+                            cert.status.charAt(0).toUpperCase() +
+                            cert.status.slice(1);
+                        }
 
-                      return (
-                        <tr key={cert._id} className="border-t border-black/10">
-                          <td className="px-4 sm:px-6 py-3 sm:py-4">
-                            {cert.name}
-                          </td>
-                          <td className="px-4 sm:px-6 py-3 sm:py-4">
-                            {cert.recipient?.username || "N/A"}
-                          </td>
-                          <td className="px-4 sm:px-6 py-3 sm:py-4">
-                            <StatusBadge status={statusLabel} />
-                          </td>
-                          <td className="px-4 sm:px-6 py-3 sm:py-4">
-                            {new Date(cert.createdAt).toLocaleDateString()}
-                          </td>
-                          <td className="px-4 sm:px-6 py-3 sm:py-4">
-                            {statusLabel === "Active" ? (
-                              <button
-                                className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded border border-red-500 bg-white text-red-600 text-xs hover:bg-red-50 transition disabled:opacity-60 w-full sm:w-auto cursor-pointer"
-                                onClick={() => {
-                                  setSelectedCert(cert);
-                                  setConfirmOpen(true);
-                                }}
-                                disabled={revokingId === cert._id}
-                              >
-                                {revokingId === cert._id ? (
-                                  <Spinner size="sm" variant="light" />
-                                ) : (
-                                  <>
-                                    <Ban className="h-3 w-3" />
-                                    <span>Revoke</span>
-                                  </>
-                                )}
-                              </button>
-                            ) : (
-                              <span className="text-[11px] text-black/40">
-                                Not available
-                              </span>
-                            )}
-                          </td>
-                        </tr>
-                      );
-                    })}
+                        return (
+                          <tr
+                            key={cert._id}
+                            className="border-t border-black/10"
+                          >
+                            <td className="px-4 sm:px-6 py-3 sm:py-4">
+                              {cert.name}
+                            </td>
+                            <td className="px-4 sm:px-6 py-3 sm:py-4">
+                              {cert.recipient?.username || "N/A"}
+                            </td>
+                            <td className="px-4 sm:px-6 py-3 sm:py-4">
+                              <StatusBadge status={statusLabel} />
+                            </td>
+                            <td className="px-4 sm:px-6 py-3 sm:py-4">
+                              {new Date(cert.createdAt).toLocaleDateString()}
+                            </td>
+                            <td className="px-4 sm:px-6 py-3 sm:py-4">
+                              {statusLabel === "Active" ? (
+                                <button
+                                  className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded border border-red-500 bg-white text-red-600 text-xs hover:bg-red-50 transition disabled:opacity-60 w-full sm:w-auto cursor-pointer"
+                                  onClick={() => {
+                                    setSelectedCert(cert);
+                                    setConfirmOpen(true);
+                                  }}
+                                  disabled={revokingId === cert._id}
+                                >
+                                  {revokingId === cert._id ? (
+                                    <Spinner size="sm" variant="light" />
+                                  ) : (
+                                    <>
+                                      <Ban className="h-3 w-3" />
+                                      <span>Revoke</span>
+                                    </>
+                                  )}
+                                </button>
+                              ) : (
+                                <span className="text-[11px] text-black/40">
+                                  Not available
+                                </span>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })}
                   </tbody>
                 </table>
               </div>

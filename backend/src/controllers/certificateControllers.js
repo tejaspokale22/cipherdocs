@@ -11,6 +11,8 @@ import { decryptAESKey, decryptFileBuffer } from "../utils/decryption.js";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import { getDocumentHMAC } from "../utils/hmac.js";
+import { expireCertificate } from "../utils/expiry.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -47,7 +49,7 @@ export const prepareCertificate = async (req, res) => {
     ) {
       return res.status(400).json({
         success: false,
-        message: "Missing required fields",
+        message: "Missing required fields.",
       });
     }
 
@@ -56,7 +58,7 @@ export const prepareCertificate = async (req, res) => {
     if (!isAddress(normalizedWallet)) {
       return res.status(400).json({
         success: false,
-        message: "Invalid recipient wallet address",
+        message: "Invalid recipient wallet address.",
       });
     }
 
@@ -67,13 +69,15 @@ export const prepareCertificate = async (req, res) => {
     if (!recipientUser) {
       return res.status(404).json({
         success: false,
-        message: "Recipient not found",
+        message: "Recipient not found.",
       });
     }
 
+    const documentHMAC = getDocumentHMAC(originalDocumentHash);
+
     // Duplicate check (only active certificates)
     const existingActive = await Certificate.findOne({
-      originalDocumentHash,
+      documentHMAC,
       recipient: recipientUser._id,
       status: "active",
     });
@@ -97,13 +101,13 @@ export const prepareCertificate = async (req, res) => {
     const masterSecret = process.env.MASTER_SECRET;
 
     if (!masterSecret) {
-      throw new Error("MASTER_SECRET not configured");
+      throw new Error("MASTER_SECRET not configured.");
     }
 
     const masterKey = Buffer.from(process.env.MASTER_SECRET, "hex");
 
     if (masterKey.length !== 32) {
-      throw new Error("MASTER_SECRET must be 32 bytes");
+      throw new Error("MASTER_SECRET must be 32 bytes.");
     }
 
     // generate envelope IV (CBC)
@@ -121,12 +125,12 @@ export const prepareCertificate = async (req, res) => {
       success: true,
       data: {
         name,
-        originalDocumentHash,
+        documentHMAC,
         encryptedDocumentHash,
         ipfsCID,
         encryptedAESKey,
-        fileIV: ivHex, // GCM IV from frontend
-        envelopeIV: envelopeIV.toString("hex"), // CBC IV
+        fileIV: ivHex,
+        envelopeIV: envelopeIV.toString("hex"),
         recipientId: recipientUser._id,
         expiryDate: expiryDate || null,
       },
@@ -135,7 +139,7 @@ export const prepareCertificate = async (req, res) => {
     console.error("Prepare Certificate Error:", error);
     return res.status(500).json({
       success: false,
-      message: "Server error while preparing certificate",
+      message: "Server error while preparing certificate.",
     });
   }
 };
@@ -145,13 +149,13 @@ export const issueCertificate = async (req, res) => {
     if (req.user.role !== "issuer") {
       return res.status(403).json({
         success: false,
-        message: "only issuers can issue certificates",
+        message: "Only issuers can issue certificates.",
       });
     }
 
     const {
       name,
-      originalDocumentHash,
+      documentHMAC,
       encryptedDocumentHash,
       ipfsCID,
       encryptedAESKey,
@@ -165,7 +169,7 @@ export const issueCertificate = async (req, res) => {
 
     if (
       !name ||
-      !originalDocumentHash ||
+      !documentHMAC ||
       !encryptedDocumentHash ||
       !ipfsCID ||
       !encryptedAESKey ||
@@ -176,7 +180,7 @@ export const issueCertificate = async (req, res) => {
     ) {
       return res.status(400).json({
         success: false,
-        message: "missing required data",
+        message: "Missing required data.",
       });
     }
 
@@ -184,7 +188,7 @@ export const issueCertificate = async (req, res) => {
     const AMOY_RPC_URL = process.env.AMOY_RPC_URL;
 
     if (!CONTRACT_ADDRESS || !AMOY_RPC_URL) {
-      throw new Error("blockchain configuration missing");
+      throw new Error("Blockchain configuration missing.");
     }
 
     const provider = new ethers.JsonRpcProvider(AMOY_RPC_URL);
@@ -194,7 +198,7 @@ export const issueCertificate = async (req, res) => {
     if (!receipt) {
       return res.status(400).json({
         success: false,
-        message: "transaction not found",
+        message: "Transaction not found.",
       });
     }
 
@@ -204,7 +208,7 @@ export const issueCertificate = async (req, res) => {
     ) {
       return res.status(400).json({
         success: false,
-        message: "invalid contract address",
+        message: "Invalid contract address.",
       });
     }
 
@@ -213,13 +217,13 @@ export const issueCertificate = async (req, res) => {
     if (!recipientUser) {
       return res.status(404).json({
         success: false,
-        message: "recipient not found",
+        message: "Recipient not found.",
       });
     }
 
     // enforce revoke-before-reissue rule
     const existingActive = await Certificate.findOne({
-      originalDocumentHash,
+      documentHMAC,
       recipient: recipientUser._id,
       status: "active",
     });
@@ -228,13 +232,13 @@ export const issueCertificate = async (req, res) => {
       return res.status(409).json({
         success: false,
         message:
-          "active certificate already exists. revoke it before reissuing.",
+          "Active certificate already exists. Revoke it before re-issuing.",
       });
     }
 
     const certificate = await Certificate.create({
       name,
-      originalDocumentHash,
+      documentHMAC,
       encryptedDocumentHash,
       ipfsCID,
       encryptedAESKey,
@@ -251,14 +255,14 @@ export const issueCertificate = async (req, res) => {
 
     return res.status(201).json({
       success: true,
-      message: "certificate issued successfully",
+      message: "Certificate issued successfully.",
       data: certificate,
     });
   } catch (error) {
-    console.error("issue certificate error:", error);
+    console.error("Issue certificate error:", error);
     return res.status(500).json({
       success: false,
-      message: "server error while issuing certificate",
+      message: "Server error while issuing certificate.",
     });
   }
 };
@@ -276,6 +280,9 @@ export const getMyCertificates = async (req, res) => {
     const result = [];
 
     for (const cert of certificates) {
+      // Update status if expired
+      await expireCertificate(cert);
+
       // fetch encrypted file from IPFS
       const encryptedBuffer = await getCertificateFromIPFS(cert.ipfsCID);
 
@@ -306,10 +313,10 @@ export const getMyCertificates = async (req, res) => {
       data: result,
     });
   } catch (error) {
-    console.error("Get My Certificates Error:", error);
+    console.error("Get my certificates error:", error);
     return res.status(500).json({
       success: false,
-      message: "Failed to fetch certificates",
+      message: "Failed to fetch certificates.",
     });
   }
 };
@@ -318,7 +325,6 @@ export const getIssuedCertificates = async (req, res) => {
   try {
     const issuerId = req.user._id;
 
-    // Safety check
     if (req.user.role !== "issuer") {
       return res.status(403).json({
         message: "Access denied. Only issuers can view issued certificates.",
@@ -326,15 +332,20 @@ export const getIssuedCertificates = async (req, res) => {
     }
 
     const certificates = await Certificate.find({ issuer: issuerId })
-      .populate("recipient", "username walletAddress") // optional
+      .populate("recipient", "username walletAddress")
       .sort({ createdAt: -1 });
+
+    for (const cert of certificates) {
+      // Update status if expired
+      await expireCertificate(cert);
+    }
 
     return res.status(200).json({
       success: true,
       data: certificates,
     });
   } catch (error) {
-    console.error("Get Issued Certificates Error:", error);
+    console.error("Get issued certificates error:", error);
     return res.status(500).json({
       message: "Server error while fetching issued certificates.",
     });
@@ -343,13 +354,13 @@ export const getIssuedCertificates = async (req, res) => {
 
 export const verifyCertificate = async (req, res) => {
   try {
-    const { certId, originalDocumentHash } = req.body;
+    const { certId, uploadedDocumentHash } = req.body;
 
     // validate required fields
-    if (!certId || !originalDocumentHash) {
+    if (!certId || !uploadedDocumentHash) {
       return res.status(400).json({
         status: "error",
-        message: "certId and originalDocumentHash are required.",
+        message: "Missing required fields: certId and originalDocumentHash.",
       });
     }
 
@@ -362,7 +373,7 @@ export const verifyCertificate = async (req, res) => {
     }
 
     const normalizedCertId = certId.toLowerCase();
-    const uploadedHash = originalDocumentHash.toLowerCase();
+    const uploadedHash = uploadedDocumentHash.toLowerCase();
 
     // fetch certificate from database
     const certificate = await Certificate.findOne({

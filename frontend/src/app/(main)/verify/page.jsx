@@ -85,8 +85,8 @@ export default function VerifyPage() {
 
   return (
     <main className="min-h-screen bg-white text-black">
-      <div className="pt-32 pb-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-3xl mx-auto">
+      <div className="pt-24 sm:pt-28 lg:pt-32 pb-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-3xl mx-auto w-full">
           {/* Page header */}
           <div className="mb-10 text-center">
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight">
@@ -99,15 +99,15 @@ export default function VerifyPage() {
           </div>
 
           {/* Main layout */}
-          <div className="max-w-2xl mx-auto">
+          <div className="max-w-2xl mx-auto w-full">
             {/* Centered actions card */}
             <div className="space-y-6">
               <div className="bg-white rounded-2xl border border-black/30 overflow-hidden">
                 {/* Card header */}
                 <div className="px-6 sm:px-8 pt-6 sm:pt-8 pb-4 border-b border-black/10">
                   <div className="flex items-center gap-2 mb-2">
-                    <div className="w-7 h-7 rounded-md bg-black flex items-center justify-center shrink-0">
-                      <QrCode className="w-3.5 h-3.5 text-white" />
+                    <div className="rounded-md flex items-center justify-center shrink-0 border-2 border-black">
+                      <QrCode className="w-8 h-8 text-black" />
                     </div>
                     <span className="text-xs sm:text-sm font-medium text-gray-500 tracking-[0.18em] uppercase">
                       Verify certificate
@@ -126,7 +126,7 @@ export default function VerifyPage() {
                     <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gray-500 mb-2">
                       Option 1 - Upload QR code
                     </p>
-                    <label className="flex flex-col items-center justify-center border-2 border-dashed border-black/20 rounded-xl p-6 sm:p-8 cursor-pointer hover:border-black/60 hover:bg-gray-50 transition w-full text-center">
+                    <label className="flex flex-col items-center justify-center border-2 border-dashed border-black/20 rounded-xl p-6 sm:p-8 cursor-pointer hover:border-black/60 hover:bg-gray-50 transition w-full max-w-full text-center">
                       <span className="sr-only">Upload QR code image</span>
                       <input
                         type="file"
@@ -173,7 +173,7 @@ export default function VerifyPage() {
                       >
                         Option 2 - Paste Verification link
                       </label>
-                      <div className="flex flex-col sm:flex-row gap-3">
+                      <div className="flex flex-col sm:flex-row gap-3 mt-2">
                         <input
                           id="verification-link"
                           type="url"
@@ -191,10 +191,6 @@ export default function VerifyPage() {
                         </button>
                       </div>
                     </div>
-                    <p className="text-xs text-gray-400">
-                      You&apos;ll be redirected to the certificate-specific
-                      verification page for a full on-chain integrity check.
-                    </p>
                   </form>
                 </div>
               </div>

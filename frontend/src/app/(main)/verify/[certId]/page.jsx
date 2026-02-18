@@ -106,7 +106,7 @@ export default function VerifyCertificatePage() {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ certId, originalDocumentHash: hashHex }),
+          body: JSON.stringify({ certId, uploadedDocumentHash: hashHex }),
         },
       );
 
@@ -153,7 +153,7 @@ export default function VerifyCertificatePage() {
           {/* ── Two-column grid: left = form, right = result ── */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-start">
             {/* left */}
-            <div className="bg-white rounded-2xl border border-black/30 shadow-sm overflow-hidden">
+            <div className="bg-white rounded-2xl border border-black/30 overflow-hidden">
               {/* Card header */}
               <div className="px-6 sm:px-8 pt-6 sm:pt-8 pb-4 sm:pb-5">
                 <div className="flex items-center gap-2 mb-3">
@@ -260,7 +260,7 @@ export default function VerifyCertificatePage() {
                       <Spinner size="md" variant="dark" />
                       <div>
                         <p className="text-sm font-semibold text-black">
-                          Verifying certificate...
+                          Authenticating certificate...
                         </p>
                         <p className="text-xs text-gray-400 mt-0.5">
                           This may take a moment.
