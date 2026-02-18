@@ -2,12 +2,6 @@ import { CheckCircle, UserCheck, GraduationCap } from "lucide-react";
 
 const roles = [
   {
-    title: "Verifier",
-    icon: CheckCircle,
-    description:
-      "Verifier is an external authority e.g., an employer who is trying to verify the authenticity of a certificate.",
-  },
-  {
     title: "Issuer",
     icon: UserCheck,
     description:
@@ -18,6 +12,12 @@ const roles = [
     icon: GraduationCap,
     description:
       "The person who is enrolled in a university and has a certificate issued by university.",
+  },
+  {
+    title: "Verifier",
+    icon: CheckCircle,
+    description:
+      "Verifier is an external authority e.g., an employer who is trying to verify the authenticity of a certificate.",
   },
 ];
 

@@ -108,7 +108,7 @@ export const verify = async (req, res) => {
 
         if (!approvedIssuers.includes(normalizedAddress)) {
           return res.status(403).json({
-            message: "This wallet is not authorized to register as an issuer.",
+            message: "This wallet is not authorized to register as issuer.",
           });
         }
       }

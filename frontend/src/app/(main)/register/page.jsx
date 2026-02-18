@@ -83,8 +83,8 @@ export default function RegisterPage() {
   }
 
   return (
-    <main className="min-h-screen bg-linear-to-b from-black/5 to-white flex items-center justify-center px-4 pt-24 pb-10 relative">
-      <div className="w-full max-w-lg">
+    <main className="min-h-screen bg-linear-to-b from-black/5 to-white flex items-center justify-center px-4 sm:px-6 lg:px-8 pt-24 pb-10 relative">
+      <div className="w-full max-w-lg mx-auto">
         <div className="bg-white rounded-2xl border-2 border-black/10 overflow-hidden">
           {/* Header */}
           <div className="px-8 pt-6">
@@ -98,14 +98,14 @@ export default function RegisterPage() {
 
           <div className="p-7">
             {/* Wallet Info */}
-            <div className="flex items-center justify-between p-4 rounded-lg bg-green-100 border-2 border-green-700 mb-6">
-              <div className="flex items-center gap-2">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 p-4 rounded-lg bg-green-100 border-2 border-green-700 mb-6">
+              <div className="flex items-center gap-2 max-w-full overflow-hidden">
                 <CheckCircle2 className="h-6 w-6 text-green-700" />
                 <div>
                   <p className="text-sm font-semibold text-black/90">
                     MetaMask Wallet Connected
                   </p>
-                  <p className="text-xs font-semibold text-black/70">
+                  <p className="text-xs font-medium text-black/70 break-all">
                     {tempAuth.walletAddress}
                   </p>
                 </div>
@@ -152,7 +152,7 @@ export default function RegisterPage() {
                 <label className="text-sm font-medium">
                   Role<span className="text-red-500">*</span>
                 </label>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {/* User */}
                   <button
                     type="button"
