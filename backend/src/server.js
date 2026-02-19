@@ -29,7 +29,7 @@ app.use(cookieParser());
 app.get("/health-check", (_req, res) => {
   res.status(200).json({
     status: "OK",
-    service: "CipherDocs Backend",
+    service: "cipherdocs. Backend",
     timestamp: new Date().toISOString(),
   });
 });
@@ -37,7 +37,7 @@ app.get("/health-check", (_req, res) => {
 // Home route
 app.get("/", (_req, res) => {
   res.status(200).json({
-    message: "Welcome to CipherDocs API",
+    message: "Welcome to cipherdocs API",
   });
 });
 

@@ -25,7 +25,7 @@ export const prepareCertificate = async (req, res) => {
     if (req.user.role !== "issuer") {
       return res.status(403).json({
         success: false,
-        message: "Only issuers can prepare certificates",
+        message: "Only issuers can issue certificates.",
       });
     }
 
@@ -86,7 +86,7 @@ export const prepareCertificate = async (req, res) => {
       return res.status(409).json({
         success: false,
         message:
-          "Active certificate already exists. Revoke it before reissuing.",
+          "Active certificate already exists. Revoke it before re-issuing.",
       });
     }
 

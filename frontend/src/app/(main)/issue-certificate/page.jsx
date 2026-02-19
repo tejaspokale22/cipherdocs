@@ -288,7 +288,6 @@ export default function IssueCertificatePage() {
       router.push("/issuer-dashboard");
     } catch (error) {
       console.error(error);
-
       if (error.code === 4001) {
         toast.error("Transaction rejected by user.", { id: toastId });
       } else if (error.message?.toLowerCase().includes("insufficient funds")) {
