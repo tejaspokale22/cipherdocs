@@ -301,7 +301,9 @@ export const getMyCertificates = async (req, res) => {
         name: cert.name,
         issuer: cert.issuer,
         issueDate: cert.issueDate,
+        createdAt: cert.createdAt,
         status: cert.status,
+        expiryDate: cert.expiryDate,
         fileBase64: decryptedBuffer.toString("base64"),
         contractCertificateId: cert.contractCertificateId,
       });
@@ -335,14 +337,42 @@ export const getIssuedCertificates = async (req, res) => {
       .populate("recipient", "username walletAddress")
       .sort({ createdAt: -1 });
 
+    const result = [];
+
     for (const cert of certificates) {
       // Update status if expired
       await expireCertificate(cert);
+
+      // fetch encrypted file from IPFS
+      const encryptedBuffer = await getCertificateFromIPFS(cert.ipfsCID);
+
+      // decrypt AES key
+      const aesKeyBuffer = decryptAESKey(cert.encryptedAESKey, cert.envelopeIV);
+
+      // decrypt file
+      const decryptedBuffer = decryptFileBuffer(
+        encryptedBuffer,
+        aesKeyBuffer,
+        cert.fileIV,
+      );
+
+      result.push({
+        _id: cert._id,
+        name: cert.name,
+        recipient: cert.recipient,
+        issueDate: cert.issueDate,
+        createdAt: cert.createdAt,
+        status: cert.status,
+        expiryDate: cert.expiryDate,
+        fileBase64: decryptedBuffer.toString("base64"),
+        contractCertificateId: cert.contractCertificateId,
+      });
     }
 
     return res.status(200).json({
       success: true,
-      data: certificates,
+      count: result.length,
+      data: result,
     });
   } catch (error) {
     console.error("Get issued certificates error:", error);

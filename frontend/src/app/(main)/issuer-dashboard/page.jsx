@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { Ban, Briefcase, FileText, Plus, Users } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Ban, Briefcase, FileText, Plus, Users, Download } from "lucide-react";
 import ProtectedRoute from "@/app/components/ProtectedRoute";
 import Link from "next/link";
 import useSWR from "swr";
@@ -12,6 +12,34 @@ import { fetcher } from "@/app/lib/fetcher";
 import { getCipherDocsContract } from "@/app/lib/contract";
 import Spinner from "@/app/components/Spinner";
 import ConfirmModal from "@/app/components/ConfirmModal";
+
+function getStatusLabel(status) {
+  if (!status) return "Unknown";
+  if (status === "revoked") return "Revoked";
+  if (status === "expired") return "Expired";
+  if (status === "active") return "Active";
+  return `${status.charAt(0).toUpperCase()}${status.slice(1)}`;
+}
+
+function isExpired(cert) {
+  const expiry = cert?.expiryDate;
+  if (!expiry) return false;
+  const d = new Date(expiry);
+  if (Number.isNaN(d.getTime())) return false;
+  return d < new Date();
+}
+
+function getEffectiveStatusLabel(cert) {
+  const raw = getStatusLabel(cert?.status);
+  if (raw === "Active" && isExpired(cert)) return "Expired";
+  return raw;
+}
+
+function formatIssuedOn(dateValue) {
+  const date = new Date(dateValue);
+  if (Number.isNaN(date.getTime())) return "—";
+  return date.toLocaleDateString();
+}
 
 export default function IssuerDashboardPage() {
   const {
@@ -28,6 +56,11 @@ export default function IssuerDashboardPage() {
   const [revokingId, setRevokingId] = useState(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [selectedCert, setSelectedCert] = useState(null);
+  const [downloadingId, setDownloadingId] = useState(null);
+
+  useEffect(() => {
+    if (error) toast.error("Failed to load issued certificates.");
+  }, [error]);
 
   // memoized stats
   const { totalIssued, uniqueRecipients, revokedExpired } = useMemo(() => {
@@ -111,9 +144,41 @@ export default function IssuerDashboardPage() {
     }
   };
 
-  if (error) {
-    toast.error("Failed to load issued certificates.");
-  }
+  // download certificate
+  const handleDownload = async (cert) => {
+    try {
+      setDownloadingId(cert._id);
+
+      if (!cert.fileBase64) {
+        toast.error("File not available.");
+        return;
+      }
+
+      const byteCharacters = atob(cert.fileBase64);
+      const byteArray = Uint8Array.from(byteCharacters, (char) =>
+        char.charCodeAt(0),
+      );
+
+      const blob = new Blob([byteArray], {
+        type: "application/pdf",
+      });
+
+      const url = window.URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${cert.name || "certificate"}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      toast.error("Download failed.");
+    } finally {
+      setDownloadingId(null);
+    }
+  };
 
   return (
     <ProtectedRoute requiredRole="issuer">
@@ -182,75 +247,89 @@ export default function IssuerDashboardPage() {
                 <table className="w-full text-xs sm:text-sm text-left">
                   <thead className="bg-black/5">
                     <tr>
-                      <th className="px-4 sm:px-6 py-3">Name</th>
-                      <th className="px-4 sm:px-6 py-3">Recipient</th>
-                      <th className="px-4 sm:px-6 py-3">Status</th>
-                      <th className="px-4 sm:px-6 py-3">Issued On</th>
-                      <th className="px-4 sm:px-6 py-3">Action</th>
+                      <th scope="col" className="px-4 sm:px-6 py-3">
+                        Name
+                      </th>
+                      <th scope="col" className="px-4 sm:px-6 py-3">
+                        Recipient
+                      </th>
+                      <th scope="col" className="px-4 sm:px-6 py-3">
+                        Status
+                      </th>
+                      <th scope="col" className="px-4 sm:px-6 py-3">
+                        Issued On
+                      </th>
+                      <th scope="col" className="px-4 sm:px-6 py-3 text-center">
+                        Action
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
-                    {certificates.length > 0 &&
-                      certificates.map((cert) => {
-                        let statusLabel;
+                    {certificates.map((cert) => {
+                      const statusLabel = getEffectiveStatusLabel(cert);
+                      const isRevoking = revokingId === cert?._id;
+                      const isDownloading = downloadingId === cert?._id;
 
-                        if (cert.status === "revoked") {
-                          statusLabel = "Revoked";
-                        } else if (cert.status === "expired") {
-                          statusLabel = "Expired";
-                        } else if (cert.status === "active") {
-                          statusLabel = "Active";
-                        } else {
-                          statusLabel =
-                            cert.status.charAt(0).toUpperCase() +
-                            cert.status.slice(1);
-                        }
+                      return (
+                        <tr
+                          key={cert?._id}
+                          className="border-t border-black/10"
+                        >
+                          <td className="px-4 sm:px-6 py-3 sm:py-4">
+                            {cert?.name || "—"}
+                          </td>
+                          <td className="px-4 sm:px-6 py-3 sm:py-4">
+                            {cert?.recipient?.username || "N/A"}
+                          </td>
+                          <td className="px-4 sm:px-6 py-3 sm:py-4">
+                            <StatusBadge status={statusLabel} />
+                          </td>
+                          <td className="px-4 sm:px-6 py-3 sm:py-4">
+                            {formatIssuedOn(cert?.createdAt || cert?.issueDate)}
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="flex items-center justify-center gap-4">
+                              {/* Left Slot (Fixed Width) */}
+                              <div className="w-[110px] flex justify-center">
+                                {statusLabel === "Active" ? (
+                                  <button
+                                    type="button"
+                                    className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded border border-red-500 bg-white text-red-600 text-xs hover:bg-red-50 transition disabled:opacity-60 cursor-pointer w-full"
+                                    onClick={() => {
+                                      setSelectedCert(cert);
+                                      setConfirmOpen(true);
+                                    }}
+                                    disabled={isRevoking}
+                                  >
+                                    <Ban className="h-3 w-3" />
+                                    <span>Revoke</span>
+                                  </button>
+                                ) : (
+                                  <span className="inline-flex items-center justify-center px-3 py-1.5 rounded border border-black/10 bg-black/5 text-black/60 text-xs w-full select-none">
+                                    {statusLabel}
+                                  </span>
+                                )}
+                              </div>
 
-                        return (
-                          <tr
-                            key={cert._id}
-                            className="border-t border-black/10"
-                          >
-                            <td className="px-4 sm:px-6 py-3 sm:py-4">
-                              {cert.name}
-                            </td>
-                            <td className="px-4 sm:px-6 py-3 sm:py-4">
-                              {cert.recipient?.username || "N/A"}
-                            </td>
-                            <td className="px-4 sm:px-6 py-3 sm:py-4">
-                              <StatusBadge status={statusLabel} />
-                            </td>
-                            <td className="px-4 sm:px-6 py-3 sm:py-4">
-                              {new Date(cert.createdAt).toLocaleDateString()}
-                            </td>
-                            <td className="px-4 sm:px-6 py-3 sm:py-4">
-                              {statusLabel === "Active" ? (
+                              {/* Right Slot (Fixed Width) */}
+                              <div className="w-[130px] flex justify-center">
                                 <button
-                                  className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded border border-red-500 bg-white text-red-600 text-xs hover:bg-red-50 transition disabled:opacity-60 w-full sm:w-auto cursor-pointer"
-                                  onClick={() => {
-                                    setSelectedCert(cert);
-                                    setConfirmOpen(true);
-                                  }}
-                                  disabled={revokingId === cert._id}
+                                  type="button"
+                                  onClick={() => handleDownload(cert)}
+                                  disabled={isDownloading}
+                                  className="bg-black text-white px-4 py-1.5 rounded-md hover:bg-black/80 transition disabled:opacity-50 flex items-center justify-center gap-2 text-sm w-full cursor-pointer"
                                 >
-                                  {revokingId === cert._id ? (
-                                    <Spinner size="sm" variant="light" />
-                                  ) : (
-                                    <>
-                                      <Ban className="h-3 w-3" />
-                                      <span>Revoke</span>
-                                    </>
-                                  )}
+                                  <Download className="h-4 w-4" />
+                                  {isDownloading
+                                    ? "Downloading..."
+                                    : "Download"}
                                 </button>
-                              ) : (
-                                <span className="text-[11px] text-black/40">
-                                  Not available
-                                </span>
-                              )}
-                            </td>
-                          </tr>
-                        );
-                      })}
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
