@@ -65,12 +65,17 @@ export async function getSession() {
 
 // logout
 export async function logout() {
-  try {
-    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/logout`, {
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/auth/logout`,
+    {
       method: "POST",
       credentials: "include",
-    });
-  } catch {
-    toast.error("logout failed");
+    },
+  );
+
+  if (!res.ok) {
+    throw new Error("Failed to logout");
   }
+
+  return true;
 }

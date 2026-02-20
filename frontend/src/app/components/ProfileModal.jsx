@@ -14,13 +14,16 @@ export default function ProfileModal({ user, onClose }) {
 
   const handleSignOut = async () => {
     try {
-      await logout();
-      setUser(null);
-      toast.success("Logged out successfully.");
-      onClose?.();
-      router.push("/");
+      const success = await logout();
+
+      if (success) {
+        setUser(null);
+        onClose?.();
+        router.replace("/");
+        toast.success("Logged out successfully.");
+      }
     } catch (error) {
-      toast.error("Failed to sign out");
+      toast.error("Failed to sign out.");
     }
   };
 

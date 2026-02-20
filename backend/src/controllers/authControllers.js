@@ -156,12 +156,12 @@ export const getCurrentSession = async (req, res) => {
 
 // Logout
 export const logout = async (_req, res) => {
-  res.cookie("token", "", {
+  res.clearCookie("token", {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
-    expires: new Date(0),
+    secure: true,
+    sameSite: "none",
+    path: "/", // VERY IMPORTANT
   });
 
-  return res.json({ message: "logged out successfully" });
+  return res.json({ message: "Logged out successfully." });
 };
