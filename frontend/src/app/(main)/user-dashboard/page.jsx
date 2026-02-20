@@ -13,14 +13,21 @@ import QrModal from "@/app/components/QrModal";
 
 export default function UserDashboardPage() {
   const {
-    data: certificates = [],
+    data = [],
     error,
     isLoading,
+    isValidating,
   } = useSWR(MY_CERTIFICATES, fetcher, {
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
-    dedupingInterval: 60000,
+    dedupingInterval: 0,
   });
+
+  const certificates = Array.isArray(data) ? data : [];
+
+  // Show spinner when loading or when revalidating with empty data (e.g. after receiving a new cert)
+  const showLoadingSpinner =
+    isLoading || (isValidating && certificates.length === 0);
   const [downloadingId, setDownloadingId] = useState(null);
   const [qrMap, setQrMap] = useState({});
   const [qrModal, setQrModal] = useState({
@@ -137,9 +144,10 @@ export default function UserDashboardPage() {
               <h2 className="font-semibold">My Certificates</h2>
             </div>
 
-            {isLoading ? (
-              <div className="flex items-center justify-center p-16">
+            {showLoadingSpinner ? (
+              <div className="flex flex-col items-center justify-center gap-4 p-16">
                 <Spinner size="lg" />
+                <p className="text-sm text-black/60">Loading certificates...</p>
               </div>
             ) : certificates.length === 0 ? (
               <div className="p-12 text-center">

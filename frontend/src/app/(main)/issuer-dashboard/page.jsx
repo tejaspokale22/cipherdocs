@@ -42,16 +42,21 @@ function formatIssuedOn(dateValue) {
 }
 
 export default function IssuerDashboardPage() {
-  const {
-    data: certificates = [],
-    isLoading,
-    error,
-    mutate,
-  } = useSWR(ISSUED_CERTIFICATES, fetcher, {
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-    dedupingInterval: 60000,
-  });
+  const { data, isLoading, isValidating, error, mutate } = useSWR(
+    ISSUED_CERTIFICATES,
+    fetcher,
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      dedupingInterval: 0,
+    },
+  );
+
+  const certificates = Array.isArray(data) ? data : [];
+
+  // Show spinner when loading or when revalidating with empty/stale data (e.g. after issuing)
+  const showLoadingSpinner =
+    isLoading || (isValidating && certificates.length === 0);
 
   const [revokingId, setRevokingId] = useState(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -63,31 +68,38 @@ export default function IssuerDashboardPage() {
   }, [error]);
 
   // memoized stats
-  const { totalIssued, uniqueRecipients, revokedExpired } = useMemo(() => {
-    // Ensure certificates is always an array
-    const safeCertificates = Array.isArray(certificates) ? certificates : [];
+  const { totalIssued, isActive, uniqueRecipients, revokedExpired } =
+    useMemo(() => {
+      // Ensure certificates is always an array
+      const safeCertificates = Array.isArray(certificates) ? certificates : [];
 
-    const totalIssued = safeCertificates.length;
+      const totalIssued = safeCertificates.length;
 
-    const uniqueRecipients = new Set(
-      safeCertificates.map((c) => c?.recipient?._id).filter(Boolean), // remove undefined/null
-    ).size;
+      const uniqueRecipients = new Set(
+        safeCertificates.map((c) => c?.recipient?._id).filter(Boolean), // remove undefined/null
+      ).size;
 
-    const revokedExpired = safeCertificates.filter((c) => {
-      if (!c) return false;
+      const revokedExpired = safeCertificates.filter((c) => {
+        if (!c) return false;
 
-      const isRevoked = c.status === "revoked" || c.revoked === true;
+        const isRevoked = c.status === "revoked";
 
-      const isExpiredValue =
-        c?.expiryDate &&
-        !isNaN(new Date(c.expiryDate)) &&
-        new Date(c.expiryDate) < new Date();
+        const isExpiredValue =
+          c?.expiryDate &&
+          !isNaN(new Date(c.expiryDate)) &&
+          new Date(c.expiryDate) < new Date();
 
-      return isRevoked || isExpiredValue;
-    }).length;
+        return isRevoked || isExpiredValue;
+      }).length;
 
-    return { totalIssued, uniqueRecipients, revokedExpired };
-  }, [certificates]);
+      const isActive = safeCertificates.filter((c) => {
+        if (!c) return false;
+        const isActive = c.status === "active";
+        return isActive;
+      }).length;
+
+      return { totalIssued, isActive, uniqueRecipients, revokedExpired };
+    }, [certificates]);
 
   // revoke handler
   const handleRevoke = async () => {
@@ -207,7 +219,7 @@ export default function IssuerDashboardPage() {
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 sm:gap-6 mb-8">
             <StatCard
               icon={<FileText className="h-5 w-5 text-black/50" />}
               label="Total Issued"
@@ -217,6 +229,11 @@ export default function IssuerDashboardPage() {
               icon={<Users className="h-5 w-5 text-black/50" />}
               label="Recipients"
               value={uniqueRecipients}
+            />
+            <StatCard
+              icon={<Users className="h-5 w-5 text-black/50" />}
+              label="Active"
+              value={isActive}
             />
             <StatCard
               icon={<Briefcase className="h-5 w-5 text-black/50" />}
@@ -233,14 +250,17 @@ export default function IssuerDashboardPage() {
               </h2>
             </div>
 
-            {isLoading ? (
-              <div className="flex justify-center p-16">
+            {showLoadingSpinner ? (
+              <div className="flex flex-col items-center justify-center gap-4 p-16">
                 <Spinner size="lg" />
+                <p className="text-sm text-black/60">Loading certificates...</p>
               </div>
             ) : certificates.length === 0 ? (
               <div className="p-12 text-center">
-                <FileText className="h-12 w-12 text-black/20 mx-auto mb-4" />
-                <p className="text-black/50">No certificates issued yet</p>
+                <p className="text-black/60">No certificates issued yet</p>
+                <p className="text-sm text-black/40 mt-1">
+                  Issue your first certificate to get started.
+                </p>
               </div>
             ) : (
               <div className="overflow-x-auto">

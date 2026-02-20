@@ -275,14 +275,11 @@ export default function IssueCertificatePage() {
       // success
       toast.success("Certificate issued successfully.", { id: toastId });
 
-      mutate(MY_CERTIFICATES, {
-        optimisticData: (prev = []) => [...prev, issueData.data],
-        rollbackOnError: true,
+      mutate(ISSUED_CERTIFICATES, (prev) => [...(prev || []), issueData.data], {
+        revalidate: true,
       });
-
-      mutate(ISSUED_CERTIFICATES, {
-        optimisticData: (prev = []) => [...prev, issueData.data],
-        rollbackOnError: true,
+      mutate(MY_CERTIFICATES, (prev) => [...(prev || []), issueData.data], {
+        revalidate: true,
       });
 
       router.push("/issuer-dashboard");

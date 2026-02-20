@@ -8,7 +8,7 @@ export const fetcher = async (url) => {
   try {
     json = await res.json();
   } catch {
-    throw new Error("Invalid server response");
+    throw new Error("Invalid server response.");
   }
 
   if (!res.ok) {
