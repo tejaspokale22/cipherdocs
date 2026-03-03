@@ -398,7 +398,7 @@ export const verifyCertificate = async (req, res) => {
     if (!ethers.isHexString(certId, 32)) {
       return res.status(400).json({
         status: "error",
-        message: "Invalid certificate ID format.",
+        message: "Please ensure that verification link is correct.",
       });
     }
 

@@ -194,9 +194,11 @@ export default function VerifyCertificatePage() {
                     type="file"
                     accept="application/pdf"
                     className="hidden"
-                    onChange={(e) =>
-                      e.target.files?.[0] && handleFile(e.target.files[0])
-                    }
+                    onChange={(e) => {
+                      const f = e.target.files?.[0];
+                      if (f) handleFile(f);
+                      e.target.value = "";
+                    }}
                     disabled={loading}
                   />
 
@@ -237,6 +239,7 @@ export default function VerifyCertificatePage() {
                               e.stopPropagation();
                               setFile(null);
                               resetState();
+                              if (inputRef.current) inputRef.current.value = "";
                             }}
                             className="text-gray-400 hover:text-black shrink-0 transition-colors ml-1"
                           >
@@ -272,11 +275,11 @@ export default function VerifyCertificatePage() {
 
                 {/* Error */}
                 {error && !loading && (
-                  <div className="bg-white rounded-2xl border border-red-100 shadow-sm overflow-hidden">
+                  <div className="bg-white rounded-2xl border border-black/30 overflow-hidden">
                     <div className="px-5 py-4 border-b border-red-50 flex items-center gap-3 bg-red-50">
                       <AlertCircle className="w-5 h-5 text-red-500 shrink-0" />
                       <p className="text-sm font-semibold text-red-700">
-                        Verification Failed
+                        Verification failed.
                       </p>
                     </div>
                     <div className="px-5 py-4">
