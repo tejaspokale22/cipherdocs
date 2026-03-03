@@ -1,6 +1,6 @@
 # cipherdocs.
 
-> A decentralized certificate issuance and verification platform powered by blockchain, secured with advanced cryptography, and enabled with instant QR-based verification.
+> A decentralized certificate issuance and verification platform powered by blockchain, secured with advanced cryptography and enabled with instant QR-based verification.
 
 [![Watch Demo](https://img.shields.io/badge/Demo-Video-blue)](https://drive.google.com/file/d/1p8YxuRGFv6lTcjeTwlK3nJgG-tc432M_/view)
 
