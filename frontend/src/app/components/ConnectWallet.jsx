@@ -20,7 +20,7 @@ export default function ConnectWalletButton() {
 
     try {
       if (!window.ethereum) {
-        toast.error("metamask not installed");
+        toast.error("Please ensure MetaMask is installed and try again.");
         return;
       }
 

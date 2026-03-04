@@ -1,1 +1,14 @@
 @import "tailwindcss";
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(120%);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 1.3s linear infinite;
+}
