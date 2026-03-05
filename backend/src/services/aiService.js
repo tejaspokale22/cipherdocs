@@ -1,4 +1,4 @@
-import Groq from "groq-sdk";
+import { ChatGroq } from "@langchain/groq";
 
 export async function askCipherDocsAssistant(message, history = []) {
   const SYSTEM_CONTEXT = `
@@ -42,20 +42,18 @@ Do not mention internal technical architecture such as hashing or internal
 implementation details. Simply explain that certificate details are stored
 securely on the blockchain.
 `;
-  const groq = new Groq({
+
+  const model = new ChatGroq({
     apiKey: process.env.GROQ_API_KEY,
-  });
-  const completion = await groq.chat.completions.create({
     model: "openai/gpt-oss-120b",
     temperature: 0.2,
-    max_completion_tokens: 120,
-    messages: [
-      { role: "system", content: SYSTEM_CONTEXT },
-      ...history,
-      { role: "user", content: message },
-    ],
   });
 
-  const response = completion.choices[0].message.content.trim();
-  return response;
+  const response = await model.invoke([
+    { role: "system", content: SYSTEM_CONTEXT },
+    ...history,
+    { role: "user", content: message },
+  ]);
+
+  return response.content.trim();
 }
