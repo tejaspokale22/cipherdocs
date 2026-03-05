@@ -7,10 +7,10 @@ import { sendChatMessage } from "../lib/aiChatApi";
 const ANIM_MS = 220;
 
 const SAMPLE_QUESTIONS = [
-  "How do I issue a certificate using cipherdocs?",
-  "How can I verify a document using the QR code?",
-  "How is a document stored in cipherdocs?",
-  "How can i connect my wallet using MetaMask?",
+  "How can I issue an original document through cipherdocs?",
+  "How can I instantly verify a document using a QR code or verification link?",
+  "How can I connect my wallet using MetaMask?",
+  "How cipherdocs securely store documents?",
 ];
 
 export default function CipherDocsAIAssistant() {
@@ -171,27 +171,31 @@ export default function CipherDocsAIAssistant() {
       )}
 
       {renderOverlay && (
-        <div className="fixed inset-0 z-40 flex items-end justify-end p-4">
-          <button onClick={closeChat} className="absolute inset-0" />
+        <div className="fixed inset-0 z-40 flex items-stretch justify-stretch p-0 sm:items-end sm:justify-end sm:p-4">
+          <button
+            onClick={closeChat}
+            className="absolute inset-0"
+            aria-hidden="true"
+          />
 
           <motion.div
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="relative flex flex-col h-[70vh] max-h-[600px] w-[95vw] max-w-[420px] overflow-hidden rounded-2xl bg-black/90 backdrop-blur-sm"
+            className="relative flex flex-col h-full w-full min-h-screen overflow-hidden rounded-none bg-black/90 backdrop-blur-sm sm:h-[70vh] sm:min-h-0 sm:max-h-[600px] sm:w-[95vw] sm:max-w-[420px] sm:rounded-2xl"
           >
             <div className="flex shrink-0 items-center justify-between px-4 py-3">
               <div className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-neutral-800">
-                  <Sparkles className="h-4 w-4 text-white" />
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-neutral-800">
+                  <Sparkles className="h-5 w-5 text-white" />
                 </div>
-                <span className="text-base font-medium text-white">
+                <span className="text-lg font-medium text-white">
                   cipherdocs ai assistant
                 </span>
               </div>
               <button
                 onClick={closeChat}
-                className="cursor-pointer rounded-lg p-1.5 text-neutral-500 transition hover:bg-neutral-800 hover:text-white"
+                className="cursor-pointer rounded-lg p-2 text-neutral-500 transition hover:bg-neutral-800 hover:text-white"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -201,31 +205,28 @@ export default function CipherDocsAIAssistant() {
               {messages.length === 0 && !loading && (
                 <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-6 px-1">
                   <div className="flex flex-col items-center gap-2 text-center">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-neutral-800/80">
-                      <MessageSquare className="h-6 w-6 text-neutral-500" />
+                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-neutral-800/80">
+                      <MessageSquare className="h-8 w-8 text-neutral-500" />
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-white">
+                      <p className="text-base font-medium text-white">
                         How can I help?
                       </p>
-                      <p className="mt-1 text-xs text-neutral-500">
+                      <p className="mt-1 text-sm text-neutral-500">
                         Choose a query below or type your own.
                       </p>
                     </div>
                   </div>
-                  <div className="grid w-full max-w-[360px] grid-cols-1 gap-2 sm:grid-cols-2">
+                  <div className="grid w-full max-w-[370px] grid-cols-1 gap-2 sm:grid-cols-2">
                     {SAMPLE_QUESTIONS.map((q, i) => (
-                      <motion.button
+                      <button
                         key={i}
                         type="button"
-                        initial={{ opacity: 0, y: 8 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: i * 0.05, duration: 0.2 }}
                         onClick={() => handleSend(q)}
-                        className="rounded-xl border border-neutral-800 bg-neutral-900/80 px-2 py-2 text-left text-[11px] leading-snug text-neutral-300 transition hover:border-neutral-700 hover:bg-neutral-800 hover:text-white focus:outline-none focus:ring-1 focus:ring-neutral-600"
+                        className="rounded-xl border-2 border-neutral-700 bg-neutral-900/80 px-1.5 py-2 cursor-pointer text-left text-[13px] leading-snug text-neutral-300 transition hover:border-gray-400 hover:bg-neutral-800 hover:text-white"
                       >
                         {q}
-                      </motion.button>
+                      </button>
                     ))}
                   </div>
                 </div>
@@ -292,7 +293,7 @@ export default function CipherDocsAIAssistant() {
                 onKeyDown={handleKeyDown}
                 placeholder="Ask Anyting"
                 disabled={loading}
-                className="flex-1 rounded-full bg-[#303030] px-4 py-2.5 text-sm text-white placeholder:text-neutral-500"
+                className="flex-1 rounded-full bg-[#303030] px-4 py-2.5 text-sm text-white placeholder:text-neutral-400 focus outline-none focus:ring-1 focus:ring-gray-400"
               />
 
               <button

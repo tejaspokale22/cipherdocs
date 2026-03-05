@@ -15,7 +15,7 @@ export default function ConnectWalletButton() {
   const { user, loading: authLoading, setUser } = useAuth();
   const [connecting, setConnecting] = useState(false);
 
-  const handleConnect = async () => {
+  const connectWallet = async () => {
     if (connecting) return;
 
     try {
@@ -96,7 +96,7 @@ export default function ConnectWalletButton() {
   // Not authenticated - show connect wallet button
   return (
     <button
-      onClick={handleConnect}
+      onClick={connectWallet}
       disabled={connecting}
       className="flex items-center gap-2 rounded-full bg-white px-3 py-1.5 text-base font-semibold text-black hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transition-all duration-300"
     >

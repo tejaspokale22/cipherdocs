@@ -1,10 +1,7 @@
 import Groq from "groq-sdk";
 
-const groq = new Groq({
-  apiKey: process.env.GROQ_API_KEY,
-});
-
-const SYSTEM_CONTEXT = `
+export async function askCipherDocsAssistant(message, history = []) {
+  const SYSTEM_CONTEXT = `
 You are the cipherdocs support assistant.
 
 Your job is to help users understand and use the cipherdocs platform.
@@ -45,8 +42,9 @@ Do not mention internal technical architecture such as hashing or internal
 implementation details. Simply explain that certificate details are stored
 securely on the blockchain.
 `;
-
-export async function askCipherDocsAssistant(message, history = []) {
+  const groq = new Groq({
+    apiKey: process.env.GROQ_API_KEY,
+  });
   const completion = await groq.chat.completions.create({
     model: "openai/gpt-oss-120b",
     temperature: 0.2,
@@ -58,7 +56,6 @@ export async function askCipherDocsAssistant(message, history = []) {
     ],
   });
 
-  let response = completion.choices[0].message.content.trim();
-
+  const response = completion.choices[0].message.content.trim();
   return response;
 }
