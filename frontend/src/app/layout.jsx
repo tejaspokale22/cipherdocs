@@ -4,6 +4,7 @@ import { AuthProvider } from "@/app/context/AuthContext";
 import AuthGate from "@/app/components/AuthGate";
 import { Toaster } from "react-hot-toast";
 import { Analytics } from "@vercel/analytics/next";
+import CipherDocsAIAssistant from "@/app/components/CipherDocsAIAssistant";
 // import NextTopLoader from "nextjs-toploader";
 
 const poppins = Poppins({
@@ -18,6 +19,12 @@ export const metadata = {
     "Cipherdocs is a Polygon-based decentralized document issuance and verification platform that ensures authenticity, integrity, and tamper resistance by storing cryptographic hashes and metadata on the blockchain with off-chain decentralized storage.",
 };
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
+
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
@@ -25,6 +32,7 @@ export default function RootLayout({ children }) {
         <AuthProvider>
           <AuthGate>{children}</AuthGate>
         </AuthProvider>
+        <CipherDocsAIAssistant />
         <Toaster
           position="top-center"
           toastOptions={{

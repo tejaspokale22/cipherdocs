@@ -19,6 +19,7 @@
     "ethers": "^6.16.0",
     "express": "^5.2.1",
     "form-data": "^4.0.5",
+    "groq-sdk": "^0.37.0",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.1.6"
   },

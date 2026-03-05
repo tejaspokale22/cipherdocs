@@ -5,6 +5,7 @@ import cookieParser from "cookie-parser";
 import connectDB from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
 import certificateRoutes from "./routes/certificateRoutes.js";
+import aiRoutes from "./routes/aiRoutes.js";
 
 dotenv.config();
 
@@ -46,6 +47,9 @@ app.use("/api/auth", authRoutes);
 
 // Certificate routes
 app.use("/api/certificates", certificateRoutes);
+
+// AI routes
+app.use("/api/ai", aiRoutes);
 
 // Connect database and start server
 const startServer = async () => {
