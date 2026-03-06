@@ -19,12 +19,6 @@ export const metadata = {
     "Cipherdocs is a Polygon-based decentralized document issuance and verification platform that ensures authenticity, integrity, and tamper resistance by storing cryptographic hashes and metadata on the blockchain with off-chain decentralized storage.",
 };
 
-export const viewport = {
-  width: "device-width",
-  initialScale: 1,
-  viewportFit: "cover",
-};
-
 export default function RootLayout({ children }) {
   return (
     <html lang="en">

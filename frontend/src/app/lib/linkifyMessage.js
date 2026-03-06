@@ -11,7 +11,7 @@ const LINK_MAP = {
   },
   "https://cipherdocs.vercel.app/issuer-dashboard": {
     href: "/issuer-dashboard",
-    label: "https://cipherdocs.vercel.app/issuer-dashboardd",
+    label: "https://cipherdocs.vercel.app/issuer-dashboard",
   },
   "https://cipherdocs.vercel.app": {
     href: "/",
@@ -23,7 +23,6 @@ export function linkifyMessage(text) {
   if (!text) return text;
 
   const parts = text.split(/(https?:\/\/[^\s]+)/g);
-  console.log(parts);
 
   return parts.map((part, index) => {
     const key = Object.keys(LINK_MAP)

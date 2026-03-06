@@ -7,7 +7,7 @@ export const protect = async (req, res, next) => {
 
     if (!token) {
       return res.status(401).json({
-        message: "not authorized",
+        message: "Please connect your wallet to continue.",
       });
     }
 
@@ -21,7 +21,7 @@ export const protect = async (req, res, next) => {
 
     if (!user) {
       return res.status(401).json({
-        message: "user not found",
+        message: "User not found.",
       });
     }
 
@@ -37,7 +37,7 @@ export const protect = async (req, res, next) => {
     next();
   } catch (error) {
     return res.status(401).json({
-      message: "invalid or expired token",
+      message: "Invalid or expired token.",
     });
   }
 };

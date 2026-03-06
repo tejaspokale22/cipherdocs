@@ -64,7 +64,7 @@ export default function IssuerDashboardPage() {
   const [downloadingId, setDownloadingId] = useState(null);
 
   useEffect(() => {
-    if (error) toast.error("Failed to load issued certificates.");
+    if (error) toast.error(error.message || "Please try again.");
   }, [error]);
 
   // memoized stats

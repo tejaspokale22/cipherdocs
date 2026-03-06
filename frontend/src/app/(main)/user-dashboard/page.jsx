@@ -40,9 +40,7 @@ export default function UserDashboardPage() {
   // show error toast safely
   useEffect(() => {
     if (error) {
-      toast.error(
-        error.message || "Failed to fetch certificates. Please try again.",
-      );
+      toast.error(error.message || "Please try again.");
     }
   }, [error]);
 
