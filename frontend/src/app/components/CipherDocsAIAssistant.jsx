@@ -1,9 +1,12 @@
 "use client";
 
+import React from "react";
 import { useState, useRef, useEffect, useCallback } from "react";
 import { MessageSquare, Send, Sparkles, X } from "lucide-react";
 import { motion } from "framer-motion";
-import { sendChatMessage } from "../lib/aiChatApi";
+import { sendChatMessage } from "@/app/lib/aiChatApi.js";
+import { linkifyMessage } from "@/app/lib/linkifyMessage.js";
+
 const ANIM_MS = 220;
 
 const SAMPLE_QUESTIONS = [
@@ -105,7 +108,10 @@ export default function CipherDocsAIAssistant() {
     if (!text || loading) return;
 
     const userMsg = { role: "user", content: text };
-    setMessages((prev) => [...prev, userMsg]);
+
+    const updatedMessages = [...messages, userMsg];
+
+    setMessages(updatedMessages);
     setInput("");
     setLoading(true);
 
@@ -114,10 +120,11 @@ export default function CipherDocsAIAssistant() {
       const controller = new AbortController();
       abortRef.current = controller;
 
-      const history = [...messages, userMsg].map((m) => ({
+      const history = updatedMessages.map((m) => ({
         role: m.role,
         content: m.content,
       }));
+
       const data = await sendChatMessage(
         { message: text, history },
         controller.signal,
@@ -127,9 +134,10 @@ export default function CipherDocsAIAssistant() {
         data?.success && typeof data.reply === "string"
           ? data.reply.trim()
           : "";
+
       if (reply) {
         setMessages((prev) => [...prev, { role: "assistant", content: reply }]);
-      } else if (!data?.success || typeof data.reply !== "string") {
+      } else {
         setMessages((prev) => [
           ...prev,
           { role: "assistant", content: "Sorry, I couldn't process that." },
@@ -137,6 +145,7 @@ export default function CipherDocsAIAssistant() {
       }
     } catch (err) {
       if (err?.name === "AbortError") return;
+
       setMessages((prev) => [
         ...prev,
         { role: "assistant", content: "Connection error. Please try again." },
@@ -201,7 +210,7 @@ export default function CipherDocsAIAssistant() {
               </button>
             </div>
 
-            <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto p-4">
+            <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-x-hidden overflow-y-auto p-4">
               {messages.length === 0 && !loading && (
                 <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-6 px-1">
                   <div className="flex flex-col items-center gap-2 text-center">
@@ -239,11 +248,7 @@ export default function CipherDocsAIAssistant() {
                   transition={{ duration: 0.2 }}
                   className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
                 >
-                  <div
-                    className={`max-w-[80%] rounded-xl px-4 py-2 text-sm text-white ${msg.role === "user" ? "bg-[#2a2a2a]" : "bg-[#3c3c3c]"}`}
-                  >
-                    {msg.content}
-                  </div>
+                  <ChatMessage key={i} msg={msg} />
                 </motion.div>
               ))}
 
@@ -291,9 +296,9 @@ export default function CipherDocsAIAssistant() {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="Ask Anyting"
+                placeholder="Ask anything"
                 disabled={loading}
-                className="flex-1 rounded-full bg-[#303030] px-4 py-2.5 text-sm text-white placeholder:text-neutral-400 focus outline-none focus:ring-1 focus:ring-gray-400"
+                className="flex-1 rounded-full bg-[#303030] px-4 py-2.5 text-sm text-white placeholder:text-neutral-400 focus outline-none focus:ring-1 focus:ring-gray-300"
               />
 
               <button
@@ -310,3 +315,16 @@ export default function CipherDocsAIAssistant() {
     </>
   );
 }
+
+const ChatMessage = React.memo(({ msg }) => {
+  const content =
+    msg.role === "assistant" ? linkifyMessage(msg.content) : msg.content;
+
+  return (
+    <div
+      className={`max-w-[80%] min-w-0 rounded-xl px-4 py-2 text-sm wrap-break-word text-white ${msg.role === "user" ? "bg-[#2a2a2a]" : "bg-[#3c3c3c]"}`}
+    >
+      {content}
+    </div>
+  );
+});
