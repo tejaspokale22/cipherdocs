@@ -36,7 +36,7 @@ export function linkifyMessage(text) {
         <Link
           key={index}
           href={link.href}
-          className="text-blue-400 underline hover:text-blue-300"
+          className="text-blue-400 hover:underline hover:text-blue-300"
         >
           {link.label}
         </Link>
