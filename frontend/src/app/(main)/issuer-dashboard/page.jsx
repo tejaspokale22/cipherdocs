@@ -51,7 +51,7 @@ export default function IssuerDashboardPage() {
       dedupingInterval: 0,
     },
   );
-
+  const certificates = Array.isArray(data) ? data : [];
   // Show spinner when loading or when revalidating with empty/stale data (e.g. after issuing)
   const showLoadingSpinner =
     isLoading || (isValidating && certificates.length === 0);
@@ -68,8 +68,6 @@ export default function IssuerDashboardPage() {
   // memoized stats
   const { totalIssued, isActive, uniqueRecipients, revokedExpired } =
     useMemo(() => {
-      const certificates = Array.isArray(data) ? data : [];
-
       // Ensure certificates is always an array
       const safeCertificates = Array.isArray(certificates) ? certificates : [];
 
