@@ -32,13 +32,14 @@ CipherDocs is a decentralized document verification system that leverages blockc
 
 ## Features
 
-- 🔐 **Blockchain-Based Issuance** - Immutable document records on Polygon blockchain
-- 📱 **QR Code Verification** - Instant authenticity checks via QR scanning
-- 🔒 **IPFS Storage** - Decentralized, encrypted document storage
-- ⏱️ **Lifecycle Management** - Revoke and expire certificates with smart contract controls
-- 👥 **Role-Based Access** - Support for Issuers, Users, and Verifiers
-- 🔍 **Transparent Audit Trail** - Complete verification history and trust scores
-- 🔗 **Secure Sharing** - Share verified documents via tamper-proof links
+- 🔐 **Blockchain-Based Issuance** - Immutable document records on Polygon blockchain  
+- 📱 **QR Code Verification** - Instant authenticity checks via QR scanning  
+- 🔒 **IPFS Storage** - Decentralized, encrypted document storage  
+- ⏱️ **Lifecycle Management** - Revoke and expire certificates with smart contract controls  
+- 👥 **Role-Based Access** - Support for Issuers, Users, and Verifiers  
+- 🤖 **AI Chat Assistant** - Built-in assistant to guide users with document issuance, verification, crypto wallet connection and platform usage
+- 🔍 **Transparent Audit Trail** - Complete verification history and trust scores  
+- 🔗 **Secure Sharing** - Share verified documents via tamper-proof links  
 
 ## Tech Stack
 

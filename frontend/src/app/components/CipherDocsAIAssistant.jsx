@@ -13,7 +13,7 @@ const SAMPLE_QUESTIONS = [
   "How can I issue an original document through cipherdocs?",
   "How can I instantly verify a document using a QR code or verification link?",
   "How can I connect my wallet using MetaMask?",
-  "How cipherdocs securely store documents?",
+  "What services are offered by cipherdocs?",
 ];
 
 export default function CipherDocsAIAssistant() {
@@ -191,7 +191,7 @@ export default function CipherDocsAIAssistant() {
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="relative flex flex-col h-full w-full min-h-screen overflow-hidden rounded-none bg-black/90 backdrop-blur-sm sm:h-[70vh] sm:min-h-0 sm:max-h-[600px] sm:w-[95vw] sm:max-w-[420px] sm:rounded-2xl"
+            className="relative flex flex-col h-full w-full min-h-screen overflow-hidden rounded-none bg-black/90 backdrop-blur-sm sm:h-[70vh] sm:min-h-0 sm:max-h-150 sm:w-[95vw] sm:max-w-105 sm:rounded-2xl"
           >
             <div className="flex shrink-0 items-center justify-between px-4 py-3">
               <div className="flex items-center gap-2">
@@ -226,7 +226,7 @@ export default function CipherDocsAIAssistant() {
                       </p>
                     </div>
                   </div>
-                  <div className="grid w-full max-w-[370px] grid-cols-1 gap-2 sm:grid-cols-2">
+                  <div className="grid w-full max-w-92.5 grid-cols-1 gap-2 sm:grid-cols-2">
                     {SAMPLE_QUESTIONS.map((q, i) => (
                       <button
                         key={i}
@@ -328,3 +328,4 @@ const ChatMessage = React.memo(({ msg }) => {
     </div>
   );
 });
+ChatMessage.displayName = "ChatMessage";

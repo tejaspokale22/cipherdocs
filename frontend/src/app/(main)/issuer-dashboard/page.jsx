@@ -52,8 +52,6 @@ export default function IssuerDashboardPage() {
     },
   );
 
-  const certificates = Array.isArray(data) ? data : [];
-
   // Show spinner when loading or when revalidating with empty/stale data (e.g. after issuing)
   const showLoadingSpinner =
     isLoading || (isValidating && certificates.length === 0);
@@ -70,6 +68,8 @@ export default function IssuerDashboardPage() {
   // memoized stats
   const { totalIssued, isActive, uniqueRecipients, revokedExpired } =
     useMemo(() => {
+      const certificates = Array.isArray(data) ? data : [];
+
       // Ensure certificates is always an array
       const safeCertificates = Array.isArray(certificates) ? certificates : [];
 
@@ -99,7 +99,7 @@ export default function IssuerDashboardPage() {
       }).length;
 
       return { totalIssued, isActive, uniqueRecipients, revokedExpired };
-    }, [certificates]);
+    }, [data]);
 
   // revoke handler
   const handleRevoke = async () => {
@@ -310,7 +310,7 @@ export default function IssuerDashboardPage() {
                           <td className="px-6 py-4">
                             <div className="flex items-center justify-center gap-4">
                               {/* Left Slot (Fixed Width) */}
-                              <div className="w-[110px] flex justify-center">
+                              <div className="w-27.5 flex justify-center">
                                 {statusLabel === "Active" ? (
                                   <button
                                     type="button"
@@ -332,7 +332,7 @@ export default function IssuerDashboardPage() {
                               </div>
 
                               {/* Right Slot (Fixed Width) */}
-                              <div className="w-[130px] flex justify-center">
+                              <div className="w-32.5 flex justify-center">
                                 <button
                                   type="button"
                                   onClick={() => handleDownload(cert)}
