@@ -121,7 +121,6 @@ export default function IssuerDashboardPage() {
       // wait for confirmation
       const receipt = await tx.wait();
 
-      // ensure transaction succeeded
       if (receipt.status !== 1) {
         throw new Error("Blockchain transaction failed.");
       }
@@ -132,6 +131,12 @@ export default function IssuerDashboardPage() {
         {
           method: "PATCH",
           credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            blockchainTxHash: tx.hash,
+          }),
         },
       );
 
@@ -255,7 +260,7 @@ export default function IssuerDashboardPage() {
               </div>
             ) : certificates.length === 0 ? (
               <div className="p-12 text-center">
-                <p className="text-black/60">No certificates issued yet</p>
+                <p className="text-black/60">No certificates issued yet.</p>
                 <p className="text-sm text-black/40 mt-1">
                   Issue your first certificate to get started.
                 </p>
@@ -312,18 +317,18 @@ export default function IssuerDashboardPage() {
                                 {statusLabel === "Active" ? (
                                   <button
                                     type="button"
-                                    className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded border border-red-500 bg-white text-red-600 text-xs hover:bg-red-50 transition disabled:opacity-60 cursor-pointer w-full"
+                                    className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-md border border-red-500 bg-white text-red-600 text-xs hover:bg-red-50 transition disabled:opacity-60 cursor-pointer w-full"
                                     onClick={() => {
                                       setSelectedCert(cert);
                                       setConfirmOpen(true);
                                     }}
                                     disabled={isRevoking}
                                   >
-                                    <Ban className="h-3 w-3" />
+                                    <Ban className="h-4 w-4" />
                                     <span>Revoke</span>
                                   </button>
                                 ) : (
-                                  <span className="inline-flex items-center justify-center px-3 py-1.5 rounded border border-black/10 bg-black/5 text-black/60 text-xs w-full select-none">
+                                  <span className="inline-flex items-center justify-center px-3 py-1.5 rounded-md border border-black/10 bg-black/5 text-black/60 w-full select-none">
                                     {statusLabel}
                                   </span>
                                 )}

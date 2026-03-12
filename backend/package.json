@@ -14,6 +14,7 @@
   "dependencies": {
     "@langchain/core": "^1.1.30",
     "@langchain/groq": "^1.1.4",
+    "@mistralai/mistralai": "^1.15.1",
     "axios": "^1.13.5",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
@@ -23,7 +24,11 @@
     "form-data": "^4.0.5",
     "groq-sdk": "^0.37.0",
     "jsonwebtoken": "^9.0.3",
-    "mongoose": "^9.1.6"
+    "mongoose": "^9.1.6",
+    "multer": "^2.1.1",
+    "pdf-parse": "^2.4.5",
+    "pdf-poppler": "^0.2.3",
+    "tesseract.js": "^7.0.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.11"

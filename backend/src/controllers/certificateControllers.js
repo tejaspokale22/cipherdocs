@@ -498,6 +498,13 @@ export const verifyCertificate = async (req, res) => {
       return res.json({
         status: "revoked",
         message: "Certificate has been revoked.",
+        issuer: certificate.issuer.walletAddress,
+        issuerName: certificate.issuer.name,
+        user: onChainCert.user,
+        issuedAt: Number(onChainCert.issuedAt) * 1000,
+        expiry: Number(onChainCert.expiry),
+        revokedAt: Number(onChainCert.revokedAt),
+        blockchainTxHash: certificate.blockchainTxHash,
       });
     }
 
@@ -510,18 +517,26 @@ export const verifyCertificate = async (req, res) => {
     ) {
       return res.json({
         status: "expired",
-        message: "Certificate has expired.",
+        message: "Certificate validity has expired.",
+        issuer: certificate.issuer.walletAddress,
+        issuerName: certificate.issuer.name,
+        user: onChainCert.user,
+        issuedAt: Number(onChainCert.issuedAt) * 1000,
+        expiry: Number(onChainCert.expiry),
+        blockchainTxHash: certificate.blockchainTxHash,
       });
     }
 
     // final valid response
     return res.json({
       status: "valid",
+      message: "Certificate is valid and authentic.",
       issuer: certificate.issuer.walletAddress,
+      issuerName: certificate.issuer.name,
       user: onChainCert.user,
       issuedAt: Number(onChainCert.issuedAt) * 1000,
+      expiry: Number(onChainCert.expiry),
       blockchainTxHash: certificate.blockchainTxHash,
-      message: "Certificate is valid and authentic.",
     });
   } catch (error) {
     console.error("Verification error:", error);
@@ -536,6 +551,7 @@ export const verifyCertificate = async (req, res) => {
 export const revokeCertificate = async (req, res) => {
   try {
     const { certId } = req.params;
+    const { blockchainTxHash } = req.body;
 
     if (!ethers.isHexString(certId, 32)) {
       return res.status(400).json({
@@ -593,6 +609,12 @@ export const revokeCertificate = async (req, res) => {
     // update db
     certificate.status = "revoked";
     certificate.revokedAt = revokedAt;
+
+    // replace previous tx hash with revoke tx
+    if (blockchainTxHash) {
+      certificate.blockchainTxHash = blockchainTxHash;
+    }
+
     await certificate.save();
 
     return res.json({

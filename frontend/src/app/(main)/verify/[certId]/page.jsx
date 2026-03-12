@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { useState, useRef } from "react";
 import Spinner from "@/app/components/Spinner";
 import Link from "next/link";
+import AIPoweredAnalysis from "@/app/components/AIPoweredAnalysis";
 
 function cn(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -299,6 +300,13 @@ export default function VerifyCertificatePage() {
             )}
           </div>
         </div>
+        {result && result.status !== "error" && (
+          <AIPoweredAnalysis
+            certId={certId}
+            verificationResult={result}
+            file={file}
+          />
+        )}
       </div>
     </main>
   );
@@ -386,9 +394,21 @@ function VerificationResult({ result, cfg }) {
       )}
 
       {/* Non-valid message */}
-      {!isValid && result.message && (
-        <div className="px-5 py-4">
-          <p className="text-sm text-gray-600">{result.message}</p>
+      {!isValid && (
+        <div className="px-5 py-4 space-y-2 text-sm text-gray-600">
+          {result.message && <p>{result.message}</p>}
+
+          {result.revokedAt && (
+            <p>
+              Revoked At: {new Date(Number(result.revokedAt)).toLocaleString()}
+            </p>
+          )}
+
+          {result.expiry && (
+            <p>
+              Expired On: {new Date(Number(result.expiry)).toLocaleDateString()}
+            </p>
+          )}
         </div>
       )}
     </div>

@@ -210,7 +210,7 @@ export default function CipherDocsAIAssistant() {
               </button>
             </div>
 
-            <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-x-hidden overflow-y-auto p-4">
+            <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-x-hidden overflow-y-auto p-4 chat-scroll">
               {messages.length === 0 && !loading && (
                 <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-6 px-1">
                   <div className="flex flex-col items-center gap-2 text-center">
@@ -221,7 +221,7 @@ export default function CipherDocsAIAssistant() {
                       <p className="text-base font-medium text-white">
                         How can I help?
                       </p>
-                      <p className="mt-1 text-sm text-neutral-500">
+                      <p className="mt-1 text-sm text-neutral-400">
                         Choose a query below or type your own.
                       </p>
                     </div>
@@ -262,7 +262,7 @@ export default function CipherDocsAIAssistant() {
                     <motion.span
                       animate={{ y: [0, -4, 0] }}
                       transition={{ duration: 0.6, repeat: Infinity, delay: 0 }}
-                      className="h-2 w-2 rounded-full bg-white"
+                      className="h-2 w-2 rounded-full bg-white/80"
                     />
                     <motion.span
                       animate={{ y: [0, -4, 0] }}
@@ -271,7 +271,7 @@ export default function CipherDocsAIAssistant() {
                         repeat: Infinity,
                         delay: 0.2,
                       }}
-                      className="h-2 w-2 rounded-full bg-white"
+                      className="h-2 w-2 rounded-full bg-white/80"
                     />
                     <motion.span
                       animate={{ y: [0, -4, 0] }}
@@ -280,7 +280,7 @@ export default function CipherDocsAIAssistant() {
                         repeat: Infinity,
                         delay: 0.4,
                       }}
-                      className="h-2 w-2 rounded-full bg-white"
+                      className="h-2 w-2 rounded-full bg-white/80"
                     />
                   </div>
                 </motion.div>
@@ -298,7 +298,7 @@ export default function CipherDocsAIAssistant() {
                 onKeyDown={handleKeyDown}
                 placeholder="Ask anything"
                 disabled={loading}
-                className="flex-1 rounded-full bg-[#303030] px-4 py-2.5 text-sm text-white placeholder:text-neutral-400 focus outline-none focus:ring-1 focus:ring-gray-300"
+                className="flex-1 rounded-full bg-[#303030] px-4 py-2.5 text-sm text-white placeholder:text-neutral-400 focus outline-none focus:ring-1 focus:ring-gray-400"
               />
 
               <button

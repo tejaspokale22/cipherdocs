@@ -12,3 +12,13 @@
 .animate-shimmer {
   animation: shimmer 1.3s linear infinite;
 }
+
+/* Chat scrollbar */
+
+.chat-scroll::-webkit-scrollbar {
+  width: 7px;
+}
+
+.chat-scroll::-webkit-scrollbar-thumb {
+  background: rgb(122, 122, 122);
+}

@@ -150,7 +150,7 @@ export default function UserDashboardPage() {
             ) : certificates.length === 0 ? (
               <div className="p-12 text-center">
                 <Download className="h-12 w-12 text-black/20 mx-auto mb-4" />
-                <p className="text-black/50">No certificates received yet</p>
+                <p className="text-black/50">No certificates received yet.</p>
               </div>
             ) : (
               <div className="overflow-x-auto">

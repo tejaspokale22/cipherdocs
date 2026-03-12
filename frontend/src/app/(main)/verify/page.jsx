@@ -6,8 +6,6 @@ import { QrCode } from "lucide-react";
 import jsQR from "jsqr";
 import toast from "react-hot-toast";
 
-// Safely extract the internal /verify/... path from a full URL or path string.
-// Returns null if the string does not contain a verification route.
 function getVerifyPath(value) {
   if (!value || typeof value !== "string") return null;
   const marker = "/verify/";
