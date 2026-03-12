@@ -76,6 +76,11 @@ const certificateSchema = new mongoose.Schema(
       type: Date,
     },
 
+    revokedAt: {
+      type: Date,
+      default: null,
+    },
+
     status: {
       type: String,
       enum: ["active", "revoked", "expired", "forged"],

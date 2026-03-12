@@ -584,8 +584,15 @@ export const revokeCertificate = async (req, res) => {
       });
     }
 
+    // convert blockchain timestamp → JS date
+    const revokedAt =
+      onChainCert.revokedAt === 0n
+        ? null
+        : new Date(Number(onChainCert.revokedAt) * 1000);
+
     // update db
     certificate.status = "revoked";
+    certificate.revokedAt = revokedAt;
     await certificate.save();
 
     return res.json({

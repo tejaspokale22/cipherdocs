@@ -11,6 +11,7 @@ contract CipherDocs {
         uint256 issuedAt;
         uint256 expiry;
         bool revoked;
+        uint256 revokedAt;
     }
 
     mapping(bytes32 => Certificate) public certificates;
@@ -21,7 +22,11 @@ contract CipherDocs {
         address indexed issuer
     );
 
-    event CertificateRevoked(bytes32 indexed certificateId);
+    event CertificateRevoked(
+        bytes32 indexed certificateId,
+        address indexed issuer,
+        uint256 revokedAt
+    );
 
     function issueCertificate(
         bytes32 _certificateId,
@@ -41,7 +46,8 @@ contract CipherDocs {
             issuer: msg.sender,
             issuedAt: block.timestamp,
             expiry: _expiry,
-            revoked: false
+            revoked: false,
+            revokedAt: 0
         });
 
         emit CertificateIssued(_certificateId, _user, msg.sender);
@@ -51,12 +57,14 @@ contract CipherDocs {
 
         Certificate storage cert = certificates[_certificateId];
 
+        require(cert.issuer != address(0), "Certificate does not exist");
         require(cert.issuer == msg.sender, "Only issuer can revoke");
         require(!cert.revoked, "Already revoked");
 
         cert.revoked = true;
+        cert.revokedAt = block.timestamp;
 
-        emit CertificateRevoked(_certificateId);
+        emit CertificateRevoked(_certificateId, msg.sender, block.timestamp);
     }
 
     function getCertificate(bytes32 _certificateId)

@@ -17,7 +17,7 @@ export default function Hero() {
     // keep skeleton visible for at least 800ms
     setTimeout(() => {
       setLoading(false);
-    }, 600);
+    }, 400);
   };
 
   return (

@@ -20,7 +20,7 @@ export function AuthProvider({ children }) {
         setUser(null);
       }
 
-      const minimumDuration = 600;
+      const minimumDuration = 400;
       const elapsed = Date.now() - start;
 
       if (elapsed < minimumDuration) {
