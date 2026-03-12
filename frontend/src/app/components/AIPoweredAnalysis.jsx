@@ -1,6 +1,25 @@
 import React, { useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 
+const AI_STATUS_CONFIG = {
+  authentic: {
+    badge: "AUTHENTIC",
+    badgeCls: "bg-green-600 text-white",
+  },
+  tampered: {
+    badge: "TAMPERED",
+    badgeCls: "bg-red-600 text-white",
+  },
+  expired: {
+    badge: "EXPIRED",
+    badgeCls: "bg-orange-500 text-white",
+  },
+  revoked: {
+    badge: "REVOKED",
+    badgeCls: "bg-red-600 text-white",
+  },
+};
+
 const SkeletonLine = ({ width = "100%" }) => {
   return (
     <div
@@ -27,6 +46,7 @@ const Skeleton = () => {
 const AIPoweredAnalysis = ({ certId, file, verificationResult }) => {
   const [loading, setLoading] = useState(true);
   const [analysis, setAnalysis] = useState("");
+  const [aiStatus, setAiStatus] = useState(null);
   const lastRequestKeyRef = useRef(null);
 
   useEffect(() => {
@@ -38,6 +58,7 @@ const AIPoweredAnalysis = ({ certId, file, verificationResult }) => {
     if (verificationResult.status === "error") {
       setLoading(false);
       setAnalysis("");
+      setAiStatus(null);
       return;
     }
 
@@ -61,6 +82,7 @@ const AIPoweredAnalysis = ({ certId, file, verificationResult }) => {
     lastRequestKeyRef.current = requestKey;
     setLoading(true);
     setAnalysis("");
+    setAiStatus(null);
 
     const runAIAnalysis = async () => {
       try {
@@ -84,9 +106,11 @@ const AIPoweredAnalysis = ({ certId, file, verificationResult }) => {
         const data = await res.json();
 
         setAnalysis(data.analysis ?? "");
+        setAiStatus(data.aiStatus ?? null);
       } catch (error) {
         console.error("AI analysis failed:", error);
         setAnalysis("Please try again.");
+        setAiStatus(null);
       } finally {
         setLoading(false);
       }
@@ -95,12 +119,14 @@ const AIPoweredAnalysis = ({ certId, file, verificationResult }) => {
     runAIAnalysis();
   }, [file, certId, verificationResult]);
 
+  const aiCfg = aiStatus ? AI_STATUS_CONFIG[aiStatus] : null;
+
   return (
     <section className="mt-8 max-w-6xl mx-auto">
       <div className="rounded-2xl border border-black/30 bg-white overflow-hidden">
         <div className="px-6 sm:px-8 pt-6 sm:pt-7 pb-4 border-b border-black/10 bg-gray-50">
           {/* Header */}
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-3">
               <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-black text-lg shadow-sm">
                 <span className="text-white">🤖</span>
@@ -111,6 +137,13 @@ const AIPoweredAnalysis = ({ certId, file, verificationResult }) => {
                 </h2>
               </div>
             </div>
+            {aiCfg && (
+              <span
+                className={`font-mono text-xs font-semibold rounded-full px-2.5 py-0.5 tracking-widest ${aiCfg.badgeCls}`}
+              >
+                {aiCfg.badge}
+              </span>
+            )}
           </div>
         </div>
 

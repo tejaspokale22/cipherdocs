@@ -220,25 +220,42 @@ export async function aianalyze({
   });
 
   const prompt = `
-The following information is provided from the cipherdocs verification system.
-
-Verification Result:
-${verificationResult.status}
-
-Certificate Metadata
-Issuer: ${verificationResult.issuerName ?? "Unknown"}
-Issued At: ${verificationResult.issuedAt ?? "Unknown"}
-Expiry: ${verificationResult.expiry ?? "N/A"}
-Revoked At: ${verificationResult.revokedAt ?? "N/A"}
-
-Uploaded Certificate Text (Reference Only):
-${uploadedText}
-
-Original Certificate Text Stored In cipherdocs (Reference Only):
-${originalText}
-
-Use the above information to generate the forensic explanation according to the system rules.
-`;
+  The following information is provided from the CipherDocs verification system.
+  
+  Verification Result:
+  ${verificationResult.status}
+  
+  Certificate Metadata:
+  Issuer: ${verificationResult.issuerName ?? "Unknown"}
+  Issued At: ${verificationResult.issuedAt ?? "Unknown"}
+  Expiry: ${verificationResult.expiry ?? "N/A"}
+  Revoked At: ${verificationResult.revokedAt ?? "N/A"}
+  
+  Uploaded Certificate Text (Reference Only):
+  ${uploadedText}
+  
+  Original Certificate Text Stored in CipherDocs (Reference Only):
+  ${originalText}
+  
+  Task:
+  Analyze the certificate verification data and provide a clear forensic explanation describing whether the certificate is valid, tampered, expired, or revoked.
+  
+  Determine the final AI verification status based on the analysis.
+  
+  Possible AI Status values:
+  - authentic
+  - tampered
+  - expired
+  - revoked
+  
+  IMPORTANT:
+  Return the result strictly in the following JSON format:
+  
+  {
+    "analysis": "Detailed forensic explanation of the verification result.",
+    "aiStatus": "authentic | tampered | expired | revoked"
+  }
+  `;
 
   const messages = [
     new SystemMessage(SYSTEM_CONTEXT),
