@@ -1,22 +1,26 @@
 import React, { useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 
-const AI_STATUS_CONFIG = {
-  authentic: {
-    badge: "AUTHENTIC",
+const VERIFICATION_STATUS_CONFIG = {
+  valid: {
+    badge: "VERIFIED",
     badgeCls: "bg-green-600 text-white",
   },
-  tampered: {
-    badge: "TAMPERED",
+  revoked: {
+    badge: "REVOKED",
     badgeCls: "bg-red-600 text-white",
   },
   expired: {
     badge: "EXPIRED",
     badgeCls: "bg-orange-500 text-white",
   },
-  revoked: {
-    badge: "REVOKED",
+  tampered: {
+    badge: "TAMPERED",
     badgeCls: "bg-red-600 text-white",
+  },
+  error: {
+    badge: "ERROR",
+    badgeCls: "bg-gray-700 text-white",
   },
 };
 
@@ -46,7 +50,6 @@ const Skeleton = () => {
 const AIPoweredAnalysis = ({ certId, file, verificationResult }) => {
   const [loading, setLoading] = useState(true);
   const [analysis, setAnalysis] = useState("");
-  const [aiStatus, setAiStatus] = useState(null);
   const lastRequestKeyRef = useRef(null);
 
   useEffect(() => {
@@ -58,7 +61,6 @@ const AIPoweredAnalysis = ({ certId, file, verificationResult }) => {
     if (verificationResult.status === "error") {
       setLoading(false);
       setAnalysis("");
-      setAiStatus(null);
       return;
     }
 
@@ -82,7 +84,6 @@ const AIPoweredAnalysis = ({ certId, file, verificationResult }) => {
     lastRequestKeyRef.current = requestKey;
     setLoading(true);
     setAnalysis("");
-    setAiStatus(null);
 
     const runAIAnalysis = async () => {
       try {
@@ -106,11 +107,9 @@ const AIPoweredAnalysis = ({ certId, file, verificationResult }) => {
         const data = await res.json();
 
         setAnalysis(data.analysis ?? "");
-        setAiStatus(data.aiStatus ?? null);
       } catch (error) {
         console.error("AI analysis failed:", error);
         setAnalysis("Please try again.");
-        setAiStatus(null);
       } finally {
         setLoading(false);
       }
@@ -119,7 +118,11 @@ const AIPoweredAnalysis = ({ certId, file, verificationResult }) => {
     runAIAnalysis();
   }, [file, certId, verificationResult]);
 
-  const aiCfg = aiStatus ? AI_STATUS_CONFIG[aiStatus] : null;
+  const verificationCfg =
+    verificationResult?.status &&
+    VERIFICATION_STATUS_CONFIG[verificationResult.status]
+      ? VERIFICATION_STATUS_CONFIG[verificationResult.status]
+      : null;
 
   return (
     <section className="mt-8 max-w-6xl mx-auto">
@@ -137,11 +140,11 @@ const AIPoweredAnalysis = ({ certId, file, verificationResult }) => {
                 </h2>
               </div>
             </div>
-            {aiCfg && (
+            {!loading && verificationCfg && (
               <span
-                className={`font-mono text-xs font-semibold rounded-full px-2.5 py-0.5 tracking-widest ${aiCfg.badgeCls}`}
+                className={`font-mono text-xs font-semibold rounded-full px-2.5 py-0.5 tracking-widest ${verificationCfg.badgeCls}`}
               >
-                {aiCfg.badge}
+                {verificationCfg.badge}
               </span>
             )}
           </div>
