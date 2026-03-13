@@ -405,7 +405,7 @@ function VerificationResult({ result, cfg }) {
             </p>
           )}
 
-          {result?.expiry && result.expiry !== 0 && (
+          {result?.expiry > 0 && result.expiry !== 0 && (
             <p>
               Expired On: {new Date(result.expiry).toLocaleDateString("en-GB")}
             </p>
