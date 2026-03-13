@@ -46,29 +46,36 @@ router.post("/ai-analysis", upload.single("file"), async (req, res) => {
       return res.status(400).json({ message: "Certificate ID is required." });
     }
 
-    // Run PDF extraction and DB query in parallel
-    const [uploadedText, cert] = await Promise.all([
-      extractTextFromPDF(file.buffer),
-      Certificate.findOne({
+    const uploadedTextPromise = extractTextFromPDF(file.buffer);
+
+    const originalTextPromise = (async () => {
+      const cert = await Certificate.findOne({
         contractCertificateId: certId.toLowerCase().trim(),
-      }),
+      });
+
+      if (!cert) {
+        const err = new Error("Certificate not found");
+        err.status = 404;
+        throw err;
+      }
+
+      const encryptedBuffer = await getCertificateFromIPFS(cert.ipfsCID);
+
+      const aesKeyBuffer = decryptAESKey(cert.encryptedAESKey, cert.envelopeIV);
+
+      const decryptedBuffer = decryptFileBuffer(
+        encryptedBuffer,
+        aesKeyBuffer,
+        cert.fileIV,
+      );
+
+      return extractTextFromPDF(decryptedBuffer);
+    })();
+
+    const [uploadedText, originalText] = await Promise.all([
+      uploadedTextPromise,
+      originalTextPromise,
     ]);
-
-    if (!cert) {
-      return res.status(404).json({ message: "Certificate not found." });
-    }
-
-    const encryptedBuffer = await getCertificateFromIPFS(cert.ipfsCID);
-
-    const aesKeyBuffer = decryptAESKey(cert.encryptedAESKey, cert.envelopeIV);
-
-    const decryptedBuffer = decryptFileBuffer(
-      encryptedBuffer,
-      aesKeyBuffer,
-      cert.fileIV,
-    );
-
-    const originalText = await extractTextFromPDF(decryptedBuffer);
 
     const analysis = await aianalyze({
       verificationResult,
@@ -79,7 +86,10 @@ router.post("/ai-analysis", upload.single("file"), async (req, res) => {
     return res.json({ analysis });
   } catch (error) {
     console.error("AI analysis error:", error);
-    return res.status(500).json({ message: "AI analysis failed." });
+
+    return res.status(error.status || 500).json({
+      message: error.message || "AI analysis failed.",
+    });
   }
 });
 
