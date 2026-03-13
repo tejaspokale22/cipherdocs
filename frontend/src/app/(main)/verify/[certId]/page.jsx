@@ -396,17 +396,18 @@ function VerificationResult({ result, cfg }) {
       {/* Non-valid message */}
       {!isValid && (
         <div className="px-5 py-4 space-y-2 text-sm text-gray-600">
-          {result.message && <p>{result.message}</p>}
+          {result?.message && <p>{result.message}</p>}
 
-          {result.revokedAt && (
+          {result?.revokedAt && result.revokedAt !== 0 && (
             <p>
-              Revoked At: {new Date(Number(result.revokedAt)).toLocaleString()}
+              Revoked At:{" "}
+              {new Date(result.revokedAt).toLocaleDateString("en-GB")}
             </p>
           )}
 
-          {result.expiry && (
+          {result?.expiry && result.expiry !== 0 && (
             <p>
-              Expired On: {new Date(Number(result.expiry)).toLocaleDateString()}
+              Expired On: {new Date(result.expiry).toLocaleDateString("en-GB")}
             </p>
           )}
         </div>

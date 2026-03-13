@@ -502,8 +502,8 @@ export const verifyCertificate = async (req, res) => {
         issuerName: certificate.issuer.name,
         user: onChainCert.user,
         issuedAt: Number(onChainCert.issuedAt) * 1000,
-        expiry: Number(onChainCert.expiry),
-        revokedAt: Number(onChainCert.revokedAt),
+        expiry: Number(onChainCert.expiry) * 1000,
+        revokedAt: Number(onChainCert.revokedAt) * 1000,
         blockchainTxHash: certificate.blockchainTxHash,
       });
     }
@@ -522,7 +522,7 @@ export const verifyCertificate = async (req, res) => {
         issuerName: certificate.issuer.name,
         user: onChainCert.user,
         issuedAt: Number(onChainCert.issuedAt) * 1000,
-        expiry: Number(onChainCert.expiry),
+        expiry: Number(onChainCert.expiry) * 1000,
         blockchainTxHash: certificate.blockchainTxHash,
       });
     }
@@ -535,7 +535,7 @@ export const verifyCertificate = async (req, res) => {
       issuerName: certificate.issuer.name,
       user: onChainCert.user,
       issuedAt: Number(onChainCert.issuedAt) * 1000,
-      expiry: Number(onChainCert.expiry),
+      expiry: Number(onChainCert.expiry) * 1000,
       blockchainTxHash: certificate.blockchainTxHash,
     });
   } catch (error) {
