@@ -395,23 +395,22 @@ function VerificationResult({ result, cfg }) {
 
       {/* Non-valid message */}
       {!isValid && (
-        <div className="px-5 py-4 space-y-2 text-sm text-gray-600">
-          {result?.message && <p>{result.message}</p>}
+  <div className="px-5 py-4 space-y-2 text-sm text-gray-600">
+    {result?.message ? <p>{result.message}</p> : null}
 
-          {result?.revokedAt && result.revokedAt !== 0 && (
-            <p>
-              Revoked At:{" "}
-              {new Date(result.revokedAt).toLocaleDateString("en-GB")}
-            </p>
-          )}
+    {result?.revokedAt > 0 ? (
+      <p>
+        Revoked At: {new Date(result.revokedAt).toLocaleDateString("en-GB")}
+      </p>
+    ) : null}
 
-          {result?.expiry > 0 && result.expiry !== 0 && (
-            <p>
-              Expired On: {new Date(result.expiry).toLocaleDateString("en-GB")}
-            </p>
-          )}
-        </div>
-      )}
+    {result?.expiry > 0 ? (
+      <p>
+        Expired On: {new Date(result.expiry).toLocaleDateString("en-GB")}
+      </p>
+    ) : null}
+  </div>
+)}
     </div>
   );
 }
