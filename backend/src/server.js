@@ -1,20 +1,23 @@
-import express from "express";
 import dotenv from "dotenv";
+
+// Load environment variables FIRST before any other imports
+dotenv.config();
+
+import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import connectDB from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
 import certificateRoutes from "./routes/certificateRoutes.js";
 import aiRoutes from "./routes/aiRoutes.js";
-
-dotenv.config();
+import aiEnhancedRoutes from "./routes/aiEnhancedRoutes.js";
 
 const app = express();
 
 // Enable CORS for frontend communication
 app.use(
   cors({
-    origin: ["http://localhost:3000", "https://cipherdocs.vercel.app"],
+    origin: ["http://localhost:3000", "https://cipherdocs.vercel.app", "http://localhost:8000"],
     credentials: true,
   }),
 );
@@ -48,8 +51,11 @@ app.use("/api/auth", authRoutes);
 // Certificate routes
 app.use("/api/certificates", certificateRoutes);
 
-// AI routes
+// AI routes (existing Groq-based chat)
 app.use("/api/ai", aiRoutes);
+
+// AI Enhanced routes (Python AI service integration)
+app.use("/api/ai-enhanced", aiEnhancedRoutes);
 
 // Connect database and start server
 const startServer = async () => {

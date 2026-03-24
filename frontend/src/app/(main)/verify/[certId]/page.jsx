@@ -6,6 +6,7 @@ import { useState, useRef } from "react";
 import Spinner from "@/app/components/Spinner";
 import Link from "next/link";
 import AIPoweredAnalysis from "@/app/components/AIPoweredAnalysis";
+import VerificationTrustScore from "@/app/components/VerificationTrustScore";
 
 function cn(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -301,11 +302,21 @@ export default function VerifyCertificatePage() {
           </div>
         </div>
         {result && result.status !== "error" && (
-          <AIPoweredAnalysis
-            certId={certId}
-            verificationResult={result}
-            file={file}
-          />
+          <>
+            <AIPoweredAnalysis
+              certId={certId}
+              verificationResult={result}
+              file={file}
+            />
+            
+            {/* Trust Score Section */}
+            <div className="mt-8 max-w-6xl mx-auto">
+              <VerificationTrustScore 
+                originalCertificateId={certId} 
+                verificationFile={file}
+              />
+            </div>
+          </>
         )}
       </div>
     </main>
@@ -395,22 +406,22 @@ function VerificationResult({ result, cfg }) {
 
       {/* Non-valid message */}
       {!isValid && (
-  <div className="px-5 py-4 space-y-2 text-sm text-gray-600">
-    {result?.message ? <p>{result.message}</p> : null}
+        <div className="px-5 py-4 space-y-2 text-sm text-gray-600">
+          {result.message && <p>{result.message}</p>}
 
-    {result?.revokedAt > 0 ? (
-      <p>
-        Revoked At: {new Date(result.revokedAt).toLocaleDateString("en-GB")}
-      </p>
-    ) : null}
+          {result.revokedAt && (
+            <p>
+              Revoked At: {new Date(Number(result.revokedAt)).toLocaleString()}
+            </p>
+          )}
 
-    {result?.expiry > 0 ? (
-      <p>
-        Expired On: {new Date(result.expiry).toLocaleDateString("en-GB")}
-      </p>
-    ) : null}
-  </div>
-)}
+          {result.expiry && (
+            <p>
+              Expired On: {new Date(Number(result.expiry)).toLocaleDateString()}
+            </p>
+          )}
+        </div>
+      )}
     </div>
   );
 }

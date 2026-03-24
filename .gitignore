@@ -77,3 +77,16 @@ temp/
 *.seed
 *.pid
 *.mp4
+block/
+
+# ================================
+# Python (AI Service)
+# ================================
+ai-service/__pycache__/
+ai-service/*.pyc
+ai-service/*.pyo
+ai-service/venv/
+ai-service/.venv/
+ai-service/*.log
+ai-service/tmp/
+ai-service/temp/

@@ -33,62 +33,67 @@ router.post("/chat", async (req, res) => {
 router.post("/ai-analysis", upload.single("file"), async (req, res) => {
   try {
     const file = req.file;
+
     if (!file) {
-      return res
-        .status(400)
-        .json({ message: "Please upload a file for verification." });
+      return res.status(400).json({
+        message: "Please upload a file for verification.",
+      });
     }
 
     const verificationResult = JSON.parse(req.body.verificationResult);
     const certId = req.body.certId;
 
     if (!certId) {
-      return res.status(400).json({ message: "Certificate ID is required." });
+      return res.status(400).json({
+        message: "Certificate ID is required.",
+      });
     }
 
-    const uploadedTextPromise = extractTextFromPDF(file.buffer);
+    // Extract uploaded certificate text
+    const uploadedText = await extractTextFromPDF(file.buffer);
 
-    const originalTextPromise = (async () => {
-      const cert = await Certificate.findOne({
-        contractCertificateId: certId.toLowerCase().trim(),
+    // Fetch certificate metadata
+    const cert = await Certificate.findOne({
+      contractCertificateId: certId.toLowerCase().trim(),
+    });
+
+    if (!cert) {
+      return res.status(404).json({
+        message: "Certificate not found.",
       });
+    }
 
-      if (!cert) {
-        const err = new Error("Certificate not found");
-        err.status = 404;
-        throw err;
-      }
+    // Fetch encrypted certificate from IPFS
+    const encryptedBuffer = await getCertificateFromIPFS(cert.ipfsCID);
 
-      const encryptedBuffer = await getCertificateFromIPFS(cert.ipfsCID);
+    // Decrypt AES key
+    const aesKeyBuffer = decryptAESKey(cert.encryptedAESKey, cert.envelopeIV);
 
-      const aesKeyBuffer = decryptAESKey(cert.encryptedAESKey, cert.envelopeIV);
+    // Decrypt certificate file
+    const decryptedBuffer = decryptFileBuffer(
+      encryptedBuffer,
+      aesKeyBuffer,
+      cert.fileIV,
+    );
 
-      const decryptedBuffer = decryptFileBuffer(
-        encryptedBuffer,
-        aesKeyBuffer,
-        cert.fileIV,
-      );
+    // Extract original certificate text
+    const originalText = await extractTextFromPDF(decryptedBuffer);
 
-      return extractTextFromPDF(decryptedBuffer);
-    })();
-
-    const [uploadedText, originalText] = await Promise.all([
-      uploadedTextPromise,
-      originalTextPromise,
-    ]);
-
+    // 7️Run AI analysis
     const analysis = await aianalyze({
       verificationResult,
       uploadedText,
       originalText,
     });
 
-    return res.json({ analysis });
+    // Send response
+    return res.json({
+      analysis,
+    });
   } catch (error) {
     console.error("AI analysis error:", error);
-
-    return res.status(error.status || 500).json({
-      message: error.message || "AI analysis failed.",
+    return res.status(500).json({
+      message: "AI analysis failed.",
     });
   }
 });

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { FileText, Download, CheckCircle, Clock, QrCode } from "lucide-react";
 import Spinner from "@/app/components/Spinner";
 import ProtectedRoute from "@/app/components/ProtectedRoute";
@@ -10,6 +10,7 @@ import { fetcher } from "@/app/lib/fetcher";
 import useSWR from "swr";
 import QRCode from "qrcode";
 import QrModal from "@/app/components/QrModal";
+import CertificateAIActions from "@/app/components/CertificateAIActions";
 
 export default function UserDashboardPage() {
   const {
@@ -36,6 +37,8 @@ export default function UserDashboardPage() {
     link: null,
     cert: null,
   });
+  const [expandedCertId, setExpandedCertId] = useState(null);
+  const [certBuffers, setCertBuffers] = useState({});
 
   // show error toast safely
   useEffect(() => {
@@ -67,6 +70,12 @@ export default function UserDashboardPage() {
       const byteArray = Uint8Array.from(byteCharacters, (char) =>
         char.charCodeAt(0),
       );
+
+      // Store buffer for AI actions
+      setCertBuffers((prev) => ({
+        ...prev,
+        [cert._id]: byteArray,
+      }));
 
       const blob = new Blob([byteArray], {
         type: "application/pdf",
@@ -166,41 +175,63 @@ export default function UserDashboardPage() {
                   </thead>
                   <tbody>
                     {certificates.map((cert) => (
-                      <tr key={cert._id} className="border-t border-black/10">
-                        <td className="px-4 sm:px-6 py-3 sm:py-4 font-medium">
-                          {cert.name}
-                        </td>
-                        <td className="px-4 sm:px-6 py-3 sm:py-4">
-                          {cert.issuer?.username || "Unknown"}
-                        </td>
-                        <td className="px-4 sm:px-6 py-3 sm:py-4">
-                          {new Date(cert.issueDate).toLocaleDateString()}
-                        </td>
-                        <td className="px-4 sm:px-6 py-3 sm:py-4">
-                          <StatusBadge status={cert.status} />
-                        </td>
-                        <td className="px-4 sm:px-6 py-3 sm:py-4 text-center">
-                          <div className="flex flex-col xs:flex-row items-stretch xs:items-center justify-center gap-2">
-                            <button
-                              onClick={() => handleDownload(cert)}
-                              disabled={downloadingId === cert._id}
-                              className="text-xs sm:text-sm bg-black text-white px-3 py-2 rounded-md hover:bg-black/80 transition disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
-                            >
-                              <Download className="h-3 w-3 sm:h-4 sm:w-4" />
-                              {downloadingId === cert._id
-                                ? "Downloading..."
-                                : "Download"}
-                            </button>
-                            <button
-                              onClick={() => generateQR(cert)}
-                              className="text-xs sm:text-sm bg-white border border-black/30 text-black px-3 py-2 rounded-md hover:bg-black/5 transition disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
-                            >
-                              <QrCode className="h-3 w-3 sm:h-4 sm:w-4" />
-                              Show QR
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
+                      <React.Fragment key={cert._id}>
+                        <tr className="border-t border-black/10">
+                          <td className="px-4 sm:px-6 py-3 sm:py-4 font-medium">
+                            {cert.name}
+                          </td>
+                          <td className="px-4 sm:px-6 py-3 sm:py-4">
+                            {cert.issuer?.username || "Unknown"}
+                          </td>
+                          <td className="px-4 sm:px-6 py-3 sm:py-4">
+                            {new Date(cert.issueDate).toLocaleDateString()}
+                          </td>
+                          <td className="px-4 sm:px-6 py-3 sm:py-4">
+                            <StatusBadge status={cert.status} />
+                          </td>
+                          <td className="px-4 sm:px-6 py-3 sm:py-4 text-center">
+                            <div className="flex flex-col xs:flex-row items-stretch xs:items-center justify-center gap-2">
+                              <button
+                                onClick={() => handleDownload(cert)}
+                                disabled={downloadingId === cert._id}
+                                className="text-xs sm:text-sm bg-black text-white px-3 py-2 rounded-md hover:bg-black/80 transition disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
+                              >
+                                <Download className="h-3 w-3 sm:h-4 sm:w-4" />
+                                {downloadingId === cert._id
+                                  ? "Downloading..."
+                                  : "Download"}
+                              </button>
+                              <button
+                                onClick={() => generateQR(cert)}
+                                className="text-xs sm:text-sm bg-white border border-black/30 text-black px-3 py-2 rounded-md hover:bg-black/5 transition disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
+                              >
+                                <QrCode className="h-3 w-3 sm:h-4 sm:w-4" />
+                                Show QR
+                              </button>
+                              <button
+                                onClick={() =>
+                                  setExpandedCertId(
+                                    expandedCertId === cert._id ? null : cert._id,
+                                  )
+                                }
+                                className="text-xs sm:text-sm bg-purple-50 border border-purple-200 text-purple-700 px-3 py-2 rounded-md hover:bg-purple-100 transition flex items-center justify-center gap-2 cursor-pointer"
+                              >
+                                AI Actions
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                        {expandedCertId === cert._id && (
+                          <tr>
+                            <td colSpan="5" className="px-4 sm:px-6 py-4 bg-gray-50">
+                              <CertificateAIActions
+                                certificate={cert}
+                                fileBuffer={certBuffers[cert._id]}
+                              />
+                            </td>
+                          </tr>
+                        )}
+                      </React.Fragment>
                     ))}
                   </tbody>
                 </table>

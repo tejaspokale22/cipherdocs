@@ -35,7 +35,7 @@ export async function verifyUser(payload) {
   const data = await res.json();
 
   if (!res.ok) {
-    throw new Error(data.message || "verification failed");
+    throw new Error(data.message || data.detail || "verification failed");
   }
 
   return data;

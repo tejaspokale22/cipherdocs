@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Ban, Briefcase, FileText, Plus, Users, Download } from "lucide-react";
 import ProtectedRoute from "@/app/components/ProtectedRoute";
 import Link from "next/link";
@@ -12,6 +12,7 @@ import { fetcher } from "@/app/lib/fetcher";
 import { getCipherDocsContract } from "@/app/lib/contract";
 import Spinner from "@/app/components/Spinner";
 import ConfirmModal from "@/app/components/ConfirmModal";
+import CertificateAIActions from "@/app/components/CertificateAIActions";
 
 function getStatusLabel(status) {
   if (!status) return "Unknown";
@@ -60,6 +61,8 @@ export default function IssuerDashboardPage() {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [selectedCert, setSelectedCert] = useState(null);
   const [downloadingId, setDownloadingId] = useState(null);
+  const [expandedCertId, setExpandedCertId] = useState(null);
+  const [certBuffers, setCertBuffers] = useState({});
 
   useEffect(() => {
     if (error) toast.error(error.message || "Please try again.");
@@ -173,6 +176,12 @@ export default function IssuerDashboardPage() {
       const byteArray = Uint8Array.from(byteCharacters, (char) =>
         char.charCodeAt(0),
       );
+
+      // Store buffer for AI actions
+      setCertBuffers((prev) => ({
+        ...prev,
+        [cert._id]: byteArray,
+      }));
 
       const blob = new Blob([byteArray], {
         type: "application/pdf",
@@ -294,63 +303,81 @@ export default function IssuerDashboardPage() {
                       const isDownloading = downloadingId === cert?._id;
 
                       return (
-                        <tr
-                          key={cert?._id}
-                          className="border-t border-black/10"
-                        >
-                          <td className="px-4 sm:px-6 py-3 sm:py-4">
-                            {cert?.name || "—"}
-                          </td>
-                          <td className="px-4 sm:px-6 py-3 sm:py-4">
-                            {cert?.recipient?.username || "N/A"}
-                          </td>
-                          <td className="px-4 sm:px-6 py-3 sm:py-4">
-                            <StatusBadge status={statusLabel} />
-                          </td>
-                          <td className="px-4 sm:px-6 py-3 sm:py-4">
-                            {formatIssuedOn(cert?.createdAt || cert?.issueDate)}
-                          </td>
-                          <td className="px-6 py-4">
-                            <div className="flex items-center justify-center gap-4">
-                              {/* Left Slot (Fixed Width) */}
-                              <div className="w-27.5 flex justify-center">
-                                {statusLabel === "Active" ? (
-                                  <button
-                                    type="button"
-                                    className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-md border border-red-500 bg-white text-red-600 text-xs hover:bg-red-50 transition disabled:opacity-60 cursor-pointer w-full"
-                                    onClick={() => {
-                                      setSelectedCert(cert);
-                                      setConfirmOpen(true);
-                                    }}
-                                    disabled={isRevoking}
-                                  >
-                                    <Ban className="h-4 w-4" />
-                                    <span>Revoke</span>
-                                  </button>
-                                ) : (
-                                  <span className="inline-flex items-center justify-center px-3 py-1.5 rounded-md border border-black/10 bg-black/5 text-black/60 w-full select-none">
-                                    {statusLabel}
-                                  </span>
-                                )}
-                              </div>
+                        <React.Fragment key={cert?._id}>
+                          <tr className="border-t border-black/10">
+                            <td className="px-4 sm:px-6 py-3 sm:py-4">
+                              {cert?.name || "—"}
+                            </td>
+                            <td className="px-4 sm:px-6 py-3 sm:py-4">
+                              {cert?.recipient?.username || "N/A"}
+                            </td>
+                            <td className="px-4 sm:px-6 py-3 sm:py-4">
+                              <StatusBadge status={statusLabel} />
+                            </td>
+                            <td className="px-4 sm:px-6 py-3 sm:py-4">
+                              {formatIssuedOn(cert?.createdAt || cert?.issueDate)}
+                            </td>
+                            <td className="px-6 py-4">
+                              <div className="flex items-center justify-center gap-2">
+                                {/* Left Slot */}
+                                <div className="flex justify-center">
+                                  {statusLabel === "Active" ? (
+                                    <button
+                                      type="button"
+                                      className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-md border border-red-500 bg-white text-red-600 text-xs hover:bg-red-50 transition disabled:opacity-60 cursor-pointer"
+                                      onClick={() => {
+                                        setSelectedCert(cert);
+                                        setConfirmOpen(true);
+                                      }}
+                                      disabled={isRevoking}
+                                    >
+                                      <Ban className="h-4 w-4" />
+                                      <span>Revoke</span>
+                                    </button>
+                                  ) : (
+                                    <span className="inline-flex items-center justify-center px-3 py-1.5 rounded-md border border-black/10 bg-black/5 text-black/60 select-none text-xs">
+                                      {statusLabel}
+                                    </span>
+                                  )}
+                                </div>
 
-                              {/* Right Slot (Fixed Width) */}
-                              <div className="w-32.5 flex justify-center">
+                                {/* Download */}
                                 <button
                                   type="button"
                                   onClick={() => handleDownload(cert)}
                                   disabled={isDownloading}
-                                  className="bg-black text-white px-4 py-1.5 rounded-md hover:bg-black/80 transition disabled:opacity-50 flex items-center justify-center gap-2 text-sm w-full cursor-pointer"
+                                  className="bg-black text-white px-3 py-1.5 rounded-md hover:bg-black/80 transition disabled:opacity-50 flex items-center justify-center gap-2 text-xs cursor-pointer"
                                 >
                                   <Download className="h-4 w-4" />
-                                  {isDownloading
-                                    ? "Downloading..."
-                                    : "Download"}
+                                  {isDownloading ? "..." : "Download"}
+                                </button>
+
+                                {/* AI Actions */}
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    setExpandedCertId(
+                                      expandedCertId === cert._id ? null : cert._id,
+                                    )
+                                  }
+                                  className="bg-purple-50 border border-purple-200 text-purple-700 px-3 py-1.5 rounded-md hover:bg-purple-100 transition flex items-center justify-center gap-2 text-xs cursor-pointer"
+                                >
+                                  AI
                                 </button>
                               </div>
-                            </div>
-                          </td>
-                        </tr>
+                            </td>
+                          </tr>
+                          {expandedCertId === cert._id && (
+                            <tr>
+                              <td colSpan="5" className="px-4 sm:px-6 py-4 bg-gray-50">
+                                <CertificateAIActions
+                                  certificate={cert}
+                                  fileBuffer={certBuffers[cert._id]}
+                                />
+                              </td>
+                            </tr>
+                          )}
+                        </React.Fragment>
                       );
                     })}
                   </tbody>
