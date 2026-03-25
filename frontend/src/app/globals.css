@@ -1,0 +1,24 @@
+@import "tailwindcss";
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(120%);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 1.3s linear infinite;
+}
+
+/* Chat scrollbar */
+
+.chat-scroll::-webkit-scrollbar {
+  width: 7px;
+}
+
+.chat-scroll::-webkit-scrollbar-thumb {
+  background: rgb(122, 122, 122);
+}
