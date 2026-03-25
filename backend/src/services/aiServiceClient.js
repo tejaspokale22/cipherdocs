@@ -9,7 +9,7 @@ import FormData from "form-data";
 // Helper function to get axios client with current env vars
 function getAIServiceClient() {
   const AI_SERVICE_URL = process.env.AI_SERVICE_URL || "http://localhost:8000";
-  const AI_SERVICE_API_KEY = "d5d87f4539ff017b9dae53f6ba7c3410133257d1cee0e34503261702c91d1672";//process.env.AI_SERVICE_API_KEY;
+  const AI_SERVICE_API_KEY = process.env.AI_SERVICE_API_KEY;
 
   if (!AI_SERVICE_API_KEY) {
     console.error("⚠️  AI_SERVICE_API_KEY is not set in backend/.env");
@@ -27,7 +27,7 @@ function getAIServiceClient() {
 
 // Log configuration on first import
 const AI_SERVICE_URL = process.env.AI_SERVICE_URL || "http://localhost:8000";
-const AI_SERVICE_API_KEY = "d5d87f4539ff017b9dae53f6ba7c3410133257d1cee0e34503261702c91d1672";//process.env.AI_SERVICE_API_KEY;
+const AI_SERVICE_API_KEY = process.env.AI_SERVICE_API_KEY;
 
 if (!AI_SERVICE_API_KEY) {
   console.error("⚠️  AI_SERVICE_API_KEY is not set in backend/.env");
