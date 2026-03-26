@@ -12,8 +12,8 @@ function getAIServiceClient() {
   const AI_SERVICE_API_KEY = process.env.AI_SERVICE_API_KEY;
 
   if (!AI_SERVICE_API_KEY) {
-    console.error("⚠️  AI_SERVICE_API_KEY is not set in backend/.env");
-    throw new Error("AI_SERVICE_API_KEY is not configured");
+    console.error("⚠️ AI_SERVICE_API_KEY is not set in backend/.env");
+    throw new Error("⚠️ AI_SERVICE_API_KEY is not configured");
   }
 
   return axios.create({
@@ -23,18 +23,6 @@ function getAIServiceClient() {
     },
     timeout: 60000,
   });
-}
-
-// Log configuration on first import
-const AI_SERVICE_URL = process.env.AI_SERVICE_URL || "http://localhost:8000";
-const AI_SERVICE_API_KEY = process.env.AI_SERVICE_API_KEY;
-
-if (!AI_SERVICE_API_KEY) {
-  console.error("⚠️  AI_SERVICE_API_KEY is not set in backend/.env");
-  console.error("⚠️  Please add: AI_SERVICE_API_KEY=your_key_here");
-} else {
-  console.log("✅ AI Service configured:", AI_SERVICE_URL);
-  console.log("✅ API Key loaded:", AI_SERVICE_API_KEY.substring(0, 10) + "...");
 }
 
 /**
