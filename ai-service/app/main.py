@@ -28,6 +28,7 @@ app.add_middleware(
         "http://localhost:3000",
         "http://localhost:5000",
         "https://cipherdocs.vercel.app",
+        "https://cipherdocs-backend.vercel.app"
     ],
     allow_credentials=True,
     allow_methods=["*"],
