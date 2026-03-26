@@ -319,23 +319,23 @@ export default function IssuerDashboardPage() {
                             </td>
                             <td className="px-6 py-4">
                               <div className="flex items-center justify-center gap-2">
-                                {/* Left Slot */}
-                                <div className="flex justify-center">
+                                {/* Left Slot — fixed width so Download & AI stay aligned */}
+                                <div className="w-20 flex justify-center shrink-0">
                                   {statusLabel === "Active" ? (
                                     <button
                                       type="button"
-                                      className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-md border border-red-500 bg-white text-red-600 text-xs hover:bg-red-50 transition disabled:opacity-60 cursor-pointer"
+                                      className="inline-flex items-center justify-center gap-1.5 w-full px-2 py-1.5 rounded-md border border-red-500 bg-white text-red-600 text-xs hover:bg-red-50 transition disabled:opacity-60 cursor-pointer"
                                       onClick={() => {
                                         setSelectedCert(cert);
                                         setConfirmOpen(true);
                                       }}
                                       disabled={isRevoking}
                                     >
-                                      <Ban className="h-4 w-4" />
+                                      <Ban className="h-3.5 w-3.5" />
                                       <span>Revoke</span>
                                     </button>
                                   ) : (
-                                    <span className="inline-flex items-center justify-center px-3 py-1.5 rounded-md border border-black/10 bg-black/5 text-black/60 select-none text-xs">
+                                    <span className="inline-flex items-center justify-center w-full px-2 py-1.5 rounded-md border border-black/10 bg-black/5 text-black/60 select-none text-xs">
                                       {statusLabel}
                                     </span>
                                   )}
