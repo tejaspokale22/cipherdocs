@@ -30,7 +30,8 @@ export default function RootLayout({ children }) {
         <Toaster
           position="top-center"
           toastOptions={{
-            duration: 1600,
+            success: { duration: 1600 },
+            error: { duration: 1600 },
           }}
         />
         <Analytics />

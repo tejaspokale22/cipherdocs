@@ -51,13 +51,48 @@ export default function IssueCertificatePage() {
       return;
     }
 
-    const toastId = toast.loading("encrypting file...");
+    const toastId = toast.loading("determining security level...");
 
     try {
       setIsLoading(true);
 
       // read file
       const fileArrayBuffer = await selectedFile.arrayBuffer();
+
+      // ADDED: convert file → base64
+      const uint8Array = new Uint8Array(fileArrayBuffer);
+      let binary = "";
+      const chunkSize = 8192;
+
+      for (let i = 0; i < uint8Array.length; i += chunkSize) {
+        const chunk = uint8Array.subarray(i, i + chunkSize);
+        binary += String.fromCharCode.apply(null, chunk);
+      }
+
+      const fileBase64 = btoa(binary);
+
+      // ADDED: call adaptive security API
+      const adaptiveRes = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/ai/adaptive-security`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ fileBase64 }),
+        }
+      );
+
+      const adaptiveData = await adaptiveRes.json();
+
+      if (!adaptiveRes.ok || !adaptiveData.success) {
+        throw new Error("Adaptive security failed.");
+      }
+
+      // adaptive security success update
+      toast.loading("encrypting file...", { id: toastId });
+
+      const keySize = adaptiveData.encryptionConfig.keySize;
+      // END ADDED
 
       // compute original hash before encryption
       const originalHashBuffer = await crypto.subtle.digest(
@@ -71,8 +106,10 @@ export default function IssueCertificatePage() {
         .map((b) => b.toString(16).padStart(2, "0"))
         .join("");
 
-      // generate aes key
-      const aesKey = crypto.getRandomValues(new Uint8Array(32));
+      // UPDATED: adaptive AES key
+      const aesKey = crypto.getRandomValues(
+        new Uint8Array(keySize / 8) // instead of 32
+      );
 
       // generate iv
       const iv = crypto.getRandomValues(new Uint8Array(12));
@@ -96,7 +133,6 @@ export default function IssueCertificatePage() {
       // convert encrypted file to base64
       const encryptedArray = new Uint8Array(encryptedBuffer);
       let binaryString = "";
-      const chunkSize = 8192;
 
       for (let i = 0; i < encryptedArray.length; i += chunkSize) {
         const chunk = encryptedArray.subarray(i, i + chunkSize);
@@ -195,8 +231,8 @@ export default function IssueCertificatePage() {
       const certificateId = ethers.keccak256(
         ethers.toUtf8Bytes(
           encryptedDocumentHash +
-            formData.recipientAddress +
-            Date.now().toString(),
+          formData.recipientAddress +
+          Date.now().toString(),
         ),
       );
 
