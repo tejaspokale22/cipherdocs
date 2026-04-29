@@ -173,8 +173,8 @@ export default function VerificationTrustScore({
             </div>
           )}
 
-          {/* <div className="flex items-start gap-2 rounded-lg bg-blue-50 p-3">
-            <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-blue-600" />
+          <div className="flex items-start gap-2 rounded-lg bg-blue-50 p-3">
+            <AlertCircle className="h-4 w-4 flex-shrink-0 text-blue-600" />
             <div className="text-xs text-blue-900">
               <p className="font-medium">How it works:</p>
               <ul className="mt-1 list-inside list-disc space-y-0.5">
@@ -184,7 +184,7 @@ export default function VerificationTrustScore({
                 <li>Generates a comprehensive trust score (0-100)</li>
               </ul>
             </div>
-          </div> */}
+          </div>
         </div>
       )}
 

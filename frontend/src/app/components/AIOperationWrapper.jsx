@@ -11,7 +11,6 @@ export default function AIOperationWrapper({
   error,
   result,
   loadingMessage = "Processing...",
-  errorTitle = "Operation Failed",
   resultTitle,
   children,
   renderResult,
@@ -22,7 +21,7 @@ export default function AIOperationWrapper({
 
   if (error) {
     return (
-      <div className="space-y-4">
+      <div className="space-y-6 mt-4">
         <ErrorDisplay message={error} type="error" />
         {children}
       </div>
@@ -31,7 +30,7 @@ export default function AIOperationWrapper({
 
   if (result) {
     return (
-      <div className="space-y-4">
+      <div className="space-y-6 mt-4">
         {renderResult ? (
           renderResult(result)
         ) : (
@@ -48,31 +47,3 @@ export default function AIOperationWrapper({
 
   return <>{children}</>;
 }
-
-/**
- * Example usage:
- * 
- * const { loading, error, result, execute } = useAIOperation();
- * 
- * return (
- *   <AIOperationWrapper
- *     loading={loading}
- *     error={error}
- *     result={result}
- *     loadingMessage="Extracting text..."
- *     resultTitle="Extracted Text"
- *     renderResult={(data) => (
- *       <div>
- *         <p>{data.text}</p>
- *         <p className="text-sm text-gray-600">
- *           {data.word_count} words
- *         </p>
- *       </div>
- *     )}
- *   >
- *     <button onClick={() => execute(() => extractText(file))}>
- *       Extract Text
- *     </button>
- *   </AIOperationWrapper>
- * );
- */
