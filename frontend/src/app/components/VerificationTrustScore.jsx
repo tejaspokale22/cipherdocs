@@ -117,11 +117,10 @@ export default function VerificationTrustScore({
           <div className="flex items-center gap-4">
             <label className="flex-1">
               <div
-                className={`flex cursor-pointer items-center justify-center rounded-lg border-2 border-dashed p-6 transition-colors ${
-                  uploadedFile
-                    ? "border-green-500 bg-green-50"
-                    : "border-gray-300 bg-gray-50 hover:border-gray-400"
-                }`}
+                className={`flex cursor-pointer items-center justify-center rounded-lg border-2 border-dashed p-6 transition-colors ${uploadedFile
+                  ? "border-green-500 bg-green-50"
+                  : "border-gray-300 bg-gray-50 hover:border-gray-400"
+                  }`}
               >
                 <div className="text-center">
                   <Upload className="mx-auto mb-2 h-8 w-8 text-gray-400" />
@@ -174,7 +173,7 @@ export default function VerificationTrustScore({
             </div>
           )}
 
-          <div className="flex items-start gap-2 rounded-lg bg-blue-50 p-3">
+          {/* <div className="flex items-start gap-2 rounded-lg bg-blue-50 p-3">
             <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-blue-600" />
             <div className="text-xs text-blue-900">
               <p className="font-medium">How it works:</p>
@@ -185,7 +184,7 @@ export default function VerificationTrustScore({
                 <li>Generates a comprehensive trust score (0-100)</li>
               </ul>
             </div>
-          </div>
+          </div> */}
         </div>
       )}
 
@@ -196,17 +195,16 @@ export default function VerificationTrustScore({
         result={result}
         loadingMessage="Analyzing document authenticity..."
         renderResult={(data) => (
-          <div className="space-y-4">
+          <div className="space-y-6 mt-4">
             {/* Trust Score Display */}
             <div className="rounded-lg bg-gradient-to-br from-blue-50 to-purple-50 p-6 text-center">
               <div
-                className={`mb-2 text-5xl font-bold ${
-                  data.trust_level === "HIGH"
-                    ? "text-green-600"
-                    : data.trust_level === "MEDIUM"
-                      ? "text-yellow-600"
-                      : "text-red-600"
-                }`}
+                className={`mb-2 text-5xl font-bold ${data.trust_level === "HIGH"
+                  ? "text-green-600"
+                  : data.trust_level === "MEDIUM"
+                    ? "text-yellow-600"
+                    : "text-red-600"
+                  }`}
               >
                 {data.trust_score}
               </div>
