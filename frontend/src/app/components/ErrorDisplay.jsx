@@ -55,7 +55,7 @@ export function ErrorDisplay({ message, type = "error" }) {
  */
 export function LoadingDisplay({ message = "Processing..." }) {
   return (
-    <div className="flex items-center justify-center gap-3 rounded-lg bg-gray-50 p-8">
+    <div className="flex items-center justify-center gap-3 rounded-lg bg-gray-50 p-8 mt-4">
       <div className="h-6 w-6 animate-spin rounded-full border-4 border-gray-300 border-t-black" />
       <p className="text-gray-600">{message}</p>
     </div>
