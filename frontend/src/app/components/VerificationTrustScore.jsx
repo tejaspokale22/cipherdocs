@@ -88,14 +88,16 @@ export default function VerificationTrustScore({
 
   return (
     <div className="rounded-lg border border-black/30 bg-white p-6">
-      <div className="mb-4 flex items-center gap-2">
+      {/* Header */}
+      <div className="flex items-center gap-2">
         <Shield className="h-5 w-5 text-blue-600" />
         <h3 className="text-lg font-semibold text-gray-900">
-          AI Trust Score Verification
+          AI Trust Score
         </h3>
       </div>
 
-      <p className="mb-4 text-sm text-gray-600">
+      {/* Description */}
+      <p className="mt-3 text-sm leading-relaxed text-gray-600">
         {verificationFile ? (
           <>
             Using the uploaded verification document to calculate trust score.
@@ -113,71 +115,71 @@ export default function VerificationTrustScore({
 
       {/* File Upload Section */}
       {!result && (
-        <div className="space-y-4">
-          <div className="flex items-center gap-4">
-            <label className="flex-1">
-              <div
-                className={`flex cursor-pointer items-center justify-center rounded-lg border-2 border-dashed p-6 transition-colors ${uploadedFile
-                  ? "border-green-500 bg-green-50"
-                  : "border-gray-300 bg-gray-50 hover:border-gray-400"
-                  }`}
-              >
-                <div className="text-center">
-                  <Upload className="mx-auto mb-2 h-8 w-8 text-gray-400" />
-                  {uploadedFile ? (
-                    <div>
-                      <p className="text-sm font-medium text-gray-900">
-                        {uploadedFile.name}
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        {(uploadedFile.size / 1024).toFixed(1)} KB
-                      </p>
-                    </div>
-                  ) : (
-                    <div>
-                      <p className="text-sm font-medium text-gray-900">
-                        Click to upload document
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        PDF, JPG, or PNG (max 10MB)
-                      </p>
-                    </div>
-                  )}
-                </div>
+        <div className="mt-5 space-y-5">
+          {/* Upload Area */}
+          <label className="block">
+            <div
+              className={`flex cursor-pointer items-center justify-center rounded-lg border-2 border-dashed p-8 transition-colors ${uploadedFile
+                ? "border-green-500 bg-green-50"
+                : "border-gray-300 bg-gray-50 hover:border-gray-400"
+                }`}
+            >
+              <div className="text-center">
+                <Upload className="mx-auto mb-2 h-8 w-8 text-gray-400" />
+                {uploadedFile ? (
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">
+                      {uploadedFile.name}
+                    </p>
+                    <p className="mt-1 text-xs text-gray-500">
+                      {(uploadedFile.size / 1024).toFixed(1)} KB
+                    </p>
+                  </div>
+                ) : (
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">
+                      Click to upload document
+                    </p>
+                    <p className="mt-1 text-xs text-gray-500">
+                      PDF, JPG, or PNG (max 10MB)
+                    </p>
+                  </div>
+                )}
               </div>
-              <input
-                type="file"
-                accept=".pdf,.jpg,.jpeg,.png"
-                onChange={handleFileChange}
-                className="hidden"
-              />
-            </label>
-          </div>
+            </div>
+            <input
+              type="file"
+              accept=".pdf,.jpg,.jpeg,.png"
+              onChange={handleFileChange}
+              className="hidden"
+            />
+          </label>
 
           {uploadedFile && (
-            <div className="flex gap-2">
+            <div className="flex gap-3">
               <button
                 onClick={handleCalculate}
                 disabled={loading}
-                className="flex-1 rounded-lg bg-black px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-gray-800 disabled:bg-gray-400"
+                className="flex-1 rounded-lg bg-black px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-gray-800 disabled:bg-gray-400 cursor-pointer"
               >
                 {loading ? "Analyzing..." : "Calculate Trust Score"}
               </button>
               <button
                 onClick={handleReset}
                 disabled={loading}
-                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:bg-gray-100"
+                className="rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:bg-gray-100 cursor-pointer"
               >
                 Reset
               </button>
             </div>
           )}
 
-          <div className="flex items-start gap-2 rounded-lg bg-blue-50 p-3">
-            <AlertCircle className="h-4 w-4 flex-shrink-0 text-blue-600" />
-            <div className="text-xs text-blue-900">
+          {/* How It Works */}
+          <div className="flex items-start gap-2.5 rounded-lg bg-blue-50 p-4">
+            <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-blue-600" />
+            <div className="text-xs leading-relaxed text-blue-900">
               <p className="font-medium">How it works:</p>
-              <ul className="mt-1 list-inside list-disc space-y-0.5">
+              <ul className="mt-1.5 list-inside list-disc space-y-1">
                 <li>Extracts text from both documents</li>
                 <li>Compares semantic similarity using AI embeddings</li>
                 <li>Analyzes document structure and metadata</li>
