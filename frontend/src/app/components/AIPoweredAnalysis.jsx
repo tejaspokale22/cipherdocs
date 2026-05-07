@@ -120,7 +120,7 @@ const AIPoweredAnalysis = ({ certId, file, verificationResult }) => {
 
   const verificationCfg =
     verificationResult?.status &&
-    VERIFICATION_STATUS_CONFIG[verificationResult.status]
+      VERIFICATION_STATUS_CONFIG[verificationResult.status]
       ? VERIFICATION_STATUS_CONFIG[verificationResult.status]
       : null;
 
@@ -136,7 +136,7 @@ const AIPoweredAnalysis = ({ certId, file, verificationResult }) => {
               </div>
               <div>
                 <h2 className="text-base sm:text-lg font-semibold text-black">
-                  AI-Powered Analysis
+                  AI-Powered Validation
                 </h2>
               </div>
             </div>
