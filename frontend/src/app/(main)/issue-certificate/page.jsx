@@ -79,7 +79,7 @@ export default function IssueCertificatePage() {
           headers: { "Content-Type": "application/json" },
           credentials: "include",
           body: JSON.stringify({ fileBase64 }),
-        }
+        },
       );
 
       const adaptiveData = await adaptiveRes.json();
@@ -108,7 +108,7 @@ export default function IssueCertificatePage() {
 
       // UPDATED: adaptive AES key
       const aesKey = crypto.getRandomValues(
-        new Uint8Array(keySize / 8) // instead of 32
+        new Uint8Array(keySize / 8), // instead of 32
       );
 
       // generate iv
@@ -231,8 +231,8 @@ export default function IssueCertificatePage() {
       const certificateId = ethers.keccak256(
         ethers.toUtf8Bytes(
           encryptedDocumentHash +
-          formData.recipientAddress +
-          Date.now().toString(),
+            formData.recipientAddress +
+            Date.now().toString(),
         ),
       );
 
